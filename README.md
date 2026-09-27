@@ -123,7 +123,7 @@ Then in Home Assistant: **Settings → Devices & services → Add integration �
 | SSID | The `Cozmo_…` name printed on the lift |
 | Password | The password printed on the lift |
 
-The password is stored in the Home Assistant config entry and in the companion environment file. Do not commit either.
+The password is stored in the Home Assistant config entry and in the companion environment file.
 
 Wi-Fi details, including why some USB adapters fail to associate, are in [docs/wifi.md](docs/wifi.md).
 
