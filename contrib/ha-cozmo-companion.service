@@ -1,0 +1,17 @@
+[Unit]
+Description=Cozmo companion
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=cozmo
+Group=cozmo
+WorkingDirectory=/opt/ha-cozmo
+EnvironmentFile=/etc/ha-cozmo-companion.env
+ExecStart=/opt/ha-cozmo/.venv/bin/python -m companion
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

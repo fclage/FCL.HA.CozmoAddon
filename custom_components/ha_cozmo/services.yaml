@@ -1,0 +1,174 @@
+drive:
+  fields:
+    url:
+      selector:
+        text:
+    left_speed:
+      example: 80
+      selector:
+        number:
+          min: -200
+          max: 200
+          step: 10
+          unit_of_measurement: mm/s
+    right_speed:
+      example: 80
+      selector:
+        number:
+          min: -200
+          max: 200
+          step: 10
+          unit_of_measurement: mm/s
+    duration:
+      example: 1
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.1
+          unit_of_measurement: s
+
+play_anim:
+  fields:
+    url:
+      selector:
+        text:
+    name:
+      example: anim_launch_wakeup_01
+      required: true
+      selector:
+        text:
+
+set_face:
+  fields:
+    url:
+      selector:
+        text:
+    expression:
+      example: happiness
+      required: true
+      selector:
+        select:
+          options:
+            - neutral
+            - anger
+            - sadness
+            - happiness
+            - surprise
+            - disgust
+            - fear
+            - pleading
+            - vulnerability
+            - despair
+            - guilt
+            - disappointment
+            - embarrassment
+            - horror
+            - skepticism
+            - annoyance
+            - fury
+            - suspicion
+            - rejection
+            - boredom
+            - tiredness
+            - asleep
+            - confusion
+            - amazement
+            - excitement
+
+stop:
+  fields:
+    url:
+      selector:
+        text:
+
+play_audio:
+  fields:
+    url:
+      selector:
+        text:
+    media_url:
+      example: http://homeassistant.local:8123/local/cozmo-hello.wav
+      required: true
+      selector:
+        text:
+
+set_head:
+  fields:
+    url:
+      selector:
+        text:
+    angle:
+      example: 10
+      required: true
+      selector:
+        number:
+          min: -25
+          max: 44.5
+          step: 1
+          unit_of_measurement: "°"
+
+set_lift:
+  fields:
+    url:
+      selector:
+        text:
+    height:
+      example: 50
+      required: true
+      selector:
+        number:
+          min: 32
+          max: 92
+          step: 1
+          unit_of_measurement: mm
+
+speak:
+  fields:
+    url:
+      selector:
+        text:
+    text:
+      example: Hello! I am Cozmo!
+      selector:
+        text:
+    phrase_id:
+      example: hello
+      selector:
+        text:
+
+play:
+  fields:
+    url:
+      selector:
+        text:
+    name:
+      example: hello
+      required: true
+      selector:
+        select:
+          options:
+            - wake
+            - hello
+            - happy
+            - curious
+            - celebrate
+            - bored
+            - blink
+            - pounce
+            - sleep
+            - dance
+
+wifi_join:
+  fields:
+    url:
+      selector:
+        text:
+    ssid:
+      example: Cozmo_XXXXXX
+      selector:
+        text:
+    password:
+      selector:
+        text:
+          type: password

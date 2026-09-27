@@ -1,0 +1,4 @@
+# Companion runtime (Linux host, not Home Assistant OS).
+pycozmo==0.8.0
+Pillow>=6.0.0
+numpy>=1.16.0

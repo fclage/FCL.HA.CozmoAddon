@@ -1,0 +1,259 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Cozmo",
+        "description": "Cozmo is its own Wi-Fi access point. Point this at the companion, then enter the adapter that should join Cozmo, plus the SSID and password printed on the lift. That adapter must not be your normal network. One adapter links one robot.",
+        "data": {
+          "url": "Companion URL",
+          "wifi_device": "Wi-Fi adapter",
+          "ssid": "Wi-Fi SSID",
+          "password": "Wi-Fi password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot reach the Cozmo companion. Is it running and reachable from Home Assistant?",
+      "invalid_auth": "Companion rejected the token",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This companion URL is already configured",
+      "cannot_connect": "The Cozmo companion is not reachable yet. Is it started?"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Cozmo options",
+        "description": "Wi-Fi adapter, SSID, and password are enough for this robot. Change the companion URL only when this Cozmo lives on another host.",
+        "data": {
+          "wifi_device": "Wi-Fi adapter",
+          "ssid": "Wi-Fi SSID",
+          "password": "Wi-Fi password",
+          "url": "Companion URL",
+          "name": "Name",
+          "token": "Companion token (optional)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot reach the Cozmo companion",
+      "invalid_auth": "Companion rejected the token",
+      "unknown": "Unexpected error"
+    }
+  },
+  "entity": {
+    "camera": {
+      "camera": {
+        "name": "Camera"
+      }
+    },
+    "select": {
+      "face": {
+        "name": "Face"
+      },
+      "animation": {
+        "name": "Animation"
+      }
+    },
+    "light": {
+      "backpack": {
+        "name": "Backpack"
+      }
+    },
+    "media_player": {
+      "speaker": {
+        "name": "Speaker"
+      }
+    },
+    "sensor": {
+      "battery": {
+        "name": "Battery"
+      },
+      "battery_voltage": {
+        "name": "Battery voltage"
+      },
+      "cubes": {
+        "name": "Cubes"
+      },
+      "orientation": {
+        "name": "Orientation"
+      }
+    },
+    "binary_sensor": {
+      "connected": {
+        "name": "Connected"
+      },
+      "charging": {
+        "name": "Charging"
+      },
+      "on_charger": {
+        "name": "On charger"
+      },
+      "cliff": {
+        "name": "Cliff"
+      },
+      "picked_up": {
+        "name": "Picked up"
+      },
+      "moving": {
+        "name": "Moving"
+      },
+      "button_pressed": {
+        "name": "Backpack button"
+      }
+    },
+    "number": {
+      "head_angle": {
+        "name": "Head angle"
+      },
+      "lift_height": {
+        "name": "Lift height"
+      },
+      "volume": {
+        "name": "Volume"
+      }
+    },
+    "button": {
+      "stop": {
+        "name": "Stop"
+      },
+      "wake": {
+        "name": "Wake up"
+      },
+      "power_off": {
+        "name": "Power off"
+      },
+      "cancel_anim": {
+        "name": "Cancel animation"
+      }
+    },
+    "switch": {
+      "head_light": {
+        "name": "IR headlight"
+      },
+      "personality": {
+        "name": "Personality"
+      },
+      "auto": {
+        "name": "Auto"
+      },
+      "auto_sleep": {
+        "name": "Auto-sleep"
+      }
+    }
+  },
+  "services": {
+    "drive": {
+      "name": "Drive wheels",
+      "description": "Drive Cozmo's wheels (pycozmo Client.drive_wheels). Speeds are mm/s, max 200.",
+      "fields": {
+        "left_speed": {
+          "name": "Left wheel",
+          "description": "Left wheel speed in mm/s (negative is reverse)"
+        },
+        "right_speed": {
+          "name": "Right wheel",
+          "description": "Right wheel speed in mm/s (negative is reverse)"
+        },
+        "duration": {
+          "name": "Duration",
+          "description": "Seconds to drive before stopping"
+        }
+      }
+    },
+    "play_anim": {
+      "name": "Play animation",
+      "description": "Play a Cozmo animation clip (requires pycozmo_resources.py download on the companion).",
+      "fields": {
+        "name": {
+          "name": "Clip name",
+          "description": "Official clip such as anim_launch_wakeup_01"
+        }
+      }
+    },
+    "set_face": {
+      "name": "Set face",
+      "description": "Show a procedural face from pycozmo.expressions.",
+      "fields": {
+        "expression": {
+          "name": "Expression",
+          "description": "One of the pycozmo.expressions names (happiness, sadness, …)"
+        }
+      }
+    },
+    "stop": {
+      "name": "Stop",
+      "description": "Stop motors and cancel the current animation."
+    },
+    "play_audio": {
+      "name": "Play audio",
+      "description": "Download a WAV/MP3 URL and play it on Cozmo (22 kHz 16-bit mono after transcode). This is the TTS hook — pycozmo has no text-to-speech.",
+      "fields": {
+        "media_url": {
+          "name": "Media URL",
+          "description": "HTTP URL of a WAV or MP3 file"
+        }
+      }
+    },
+    "set_head": {
+      "name": "Set head angle",
+      "description": "Set head angle in degrees (−25 to 44.5).",
+      "fields": {
+        "angle": {
+          "name": "Angle",
+          "description": "Degrees"
+        }
+      }
+    },
+    "set_lift": {
+      "name": "Set lift height",
+      "description": "Set lift height in millimetres (32–92).",
+      "fields": {
+        "height": {
+          "name": "Height",
+          "description": "Millimetres"
+        }
+      }
+    },
+    "play": {
+      "name": "Play",
+      "description": "Play a named Cozmo reaction (hello, dance, sleep, and the other built-in moods).",
+      "fields": {
+        "name": {
+          "name": "Reaction",
+          "description": "hello, happy, curious, celebrate, dance, bored, blink, pounce, sleep, or wake"
+        }
+      }
+    },
+    "speak": {
+      "name": "Speak",
+      "description": "Local espeak-ng TTS on the companion (PyCozmo has no off-board speech). Install espeak-ng on the companion host.",
+      "fields": {
+        "text": {
+          "name": "Text",
+          "description": "Words to speak (max 400 characters)"
+        },
+        "phrase_id": {
+          "name": "Phrase id",
+          "description": "Catalog id such as hello, yay, goodbye"
+        }
+      }
+    },
+    "wifi_join": {
+      "name": "Join Cozmo Wi-Fi",
+      "description": "Ask the companion to associate the USB dongle with Cozmo's AP (never-default NM profile). Ethernet stays on the LAN.",
+      "fields": {
+        "ssid": {
+          "name": "SSID",
+          "description": "Override SSID (default: the one stored in the config entry)"
+        },
+        "password": {
+          "name": "Password",
+          "description": "Override PSK"
+        }
+      }
+    }
+  }
+}

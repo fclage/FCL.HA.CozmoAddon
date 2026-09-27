@@ -1,0 +1,179 @@
+# Paste this item into the `views:` list of a Lovelace dashboard
+# (Edit dashboard → raw configuration editor).
+#
+# Entity ids match a device named "Cozmo". Rename them if you renamed the device.
+# Cards are built-in. No custom card is required.
+#
+# Optional: custom_cards/cozmo-pad.js adds custom:cozmo-pad and custom:cozmo-say.
+
+title: Cozmo
+path: cozmo
+icon: mdi:robot-happy
+type: sections
+max_columns: 3
+sections:
+  - type: grid
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: button
+            name: Power on
+            icon: mdi:power
+            show_name: true
+            show_icon: true
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.cozmo_wake_up
+          - type: button
+            name: Power off
+            icon: mdi:power
+            show_name: true
+            show_icon: true
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.cozmo_power_off
+          - type: tile
+            entity: switch.cozmo_auto
+            name: Auto
+          - type: tile
+            entity: switch.cozmo_auto_sleep
+            name: Auto-sleep
+      - type: tile
+        entity: binary_sensor.cozmo_connected
+        name: Connection
+      - type: tile
+        entity: sensor.cozmo_battery
+        name: Battery
+      - type: picture-entity
+        entity: camera.cozmo
+        camera_view: auto
+        name: Camera
+        show_name: false
+        show_state: false
+        fit_mode: contain
+        aspect_ratio: 16x9
+      - type: horizontal-stack
+        cards:
+          - type: button
+            name: Lift up
+            icon: mdi:arrow-up
+            tap_action:
+              action: perform-action
+              perform_action: ha_cozmo.set_lift
+              data:
+                height: 92
+          - type: button
+            name: Forward
+            icon: mdi:arrow-up-bold
+            tap_action:
+              action: perform-action
+              perform_action: ha_cozmo.drive
+              data:
+                left_speed: 80
+                right_speed: 80
+                duration: 0.4
+          - type: button
+            name: Lift down
+            icon: mdi:arrow-down
+            tap_action:
+              action: perform-action
+              perform_action: ha_cozmo.set_lift
+              data:
+                height: 32
+      - type: horizontal-stack
+        cards:
+          - type: button
+            name: Left
+            icon: mdi:arrow-left-bold
+            tap_action:
+              action: perform-action
+              perform_action: ha_cozmo.drive
+              data:
+                left_speed: -60
+                right_speed: 60
+                duration: 0.35
+          - type: button
+            name: Stop
+            icon: mdi:stop
+            tap_action:
+              action: perform-action
+              perform_action: button.press
+              target:
+                entity_id: button.cozmo_stop
+          - type: button
+            name: Right
+            icon: mdi:arrow-right-bold
+            tap_action:
+              action: perform-action
+              perform_action: ha_cozmo.drive
+              data:
+                left_speed: 60
+                right_speed: -60
+                duration: 0.35
+      - type: horizontal-stack
+        cards:
+          - type: button
+            name: Face up
+            icon: mdi:arrow-up
+            tap_action:
+              action: perform-action
+              perform_action: ha_cozmo.set_head
+              data:
+                angle: 40
+          - type: button
+            name: Back
+            icon: mdi:arrow-down-bold
+            tap_action:
+              action: perform-action
+              perform_action: ha_cozmo.drive
+              data:
+                left_speed: -70
+                right_speed: -70
+                duration: 0.4
+          - type: button
+            name: Face down
+            icon: mdi:arrow-down
+            tap_action:
+              action: perform-action
+              perform_action: ha_cozmo.set_head
+              data:
+                angle: -20
+  - type: grid
+    cards:
+      - type: heading
+        heading: More
+      - type: tile
+        entity: number.cozmo_head_angle
+        name: Head angle
+      - type: tile
+        entity: number.cozmo_lift_height
+        name: Lift height
+      - type: tile
+        entity: select.cozmo_face
+        name: Face
+      - type: tile
+        entity: switch.cozmo_personality
+        name: Personality
+      - type: tile
+        entity: binary_sensor.cozmo_on_charger
+        name: On charger
+      - type: button
+        name: Greet
+        icon: mdi:hand-wave
+        tap_action:
+          action: perform-action
+          perform_action: ha_cozmo.play
+          data:
+            name: greet
+      - type: button
+        name: Link cubes
+        icon: mdi:cube-scan
+        tap_action:
+          action: perform-action
+          perform_action: button.press
+          target:
+            entity_id: button.cozmo_connect_cubes

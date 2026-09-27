@@ -1,0 +1,14 @@
+{
+  "domain": "ha_cozmo",
+  "name": "Cozmo",
+  "codeowners": ["@fclage"],
+  "config_flow": true,
+  "documentation": "https://github.com/fclage/FCL.HA.CozmoAddon",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/fclage/FCL.HA.CozmoAddon/issues",
+  "loggers": ["ha_cozmo", "companion"],
+  "quality_scale": "custom",
+  "requirements": [],
+  "version": "0.1.0"
+}

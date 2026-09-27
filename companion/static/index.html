@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>hacozmo companion</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>hacozmo</h1>
+        <p class="tag">Companion debug UI · same API Home Assistant uses</p>
+      </div>
+      <div class="status">
+        <span class="dot" id="dot"></span>
+        <span id="conn">…</span>
+        <span id="batt">—</span>
+      </div>
+    </header>
+    <main>
+      <section>
+        <h2>Companion token</h2>
+        <p class="hint">Leave blank if <code>COMPANION_TOKEN</code> is unset. Stored in this browser only.</p>
+        <input id="token" type="password" placeholder="optional bearer token" />
+      </section>
+      <section>
+        <h2>Wi‑Fi (Cozmo AP)</h2>
+        <div class="row">
+          <select id="ssidSelect"><option value="">Scan…</option></select>
+          <button type="button" id="btnScan">Rescan</button>
+        </div>
+        <input id="ssid" placeholder="Cozmo_XXXXXX" />
+        <input id="psk" type="password" placeholder="lift PSK" />
+        <button type="button" id="btnJoin">Join AP</button>
+        <p class="hint" id="wifiHint"></p>
+      </section>
+      <section>
+        <h2>Camera</h2>
+        <img id="cam" alt="Cozmo camera" />
+      </section>
+      <section>
+        <h2>Drive</h2>
+        <div class="row">
+          <button type="button" data-drive="80,80">Forward</button>
+          <button type="button" data-drive="-80,80">Left</button>
+          <button type="button" data-drive="80,-80">Right</button>
+          <button type="button" data-drive="-80,-80">Back</button>
+          <button type="button" id="btnStop" class="danger">Stop</button>
+        </div>
+      </section>
+      <section>
+        <h2>Speak / face</h2>
+        <div class="row">
+          <input id="say" placeholder="Hello, I am Cozmo" />
+          <button type="button" id="btnSay">Speak</button>
+        </div>
+        <div class="row wrap" id="faces"></div>
+      </section>
+      <section>
+        <h2>Personality</h2>
+        <div class="row">
+          <button type="button" id="btnIdleOn">Idle on</button>
+          <button type="button" id="btnIdleOff">Idle off</button>
+        </div>
+        <div class="row wrap" id="anims"></div>
+      </section>
+    </main>
+    <p class="err" id="err" hidden></p>
+    <script src="app.js"></script>
+  </body>
+</html>

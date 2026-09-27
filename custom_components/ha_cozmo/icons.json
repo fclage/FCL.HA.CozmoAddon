@@ -1,0 +1,51 @@
+{
+  "entity": {
+    "sensor": {
+      "battery": { "default": "mdi:battery" },
+      "cubes": { "default": "mdi:cube-outline" },
+      "orientation": { "default": "mdi:axis-arrow" }
+    },
+    "binary_sensor": {
+      "cliff": { "default": "mdi:alert" },
+      "picked_up": { "default": "mdi:hand-back-right" },
+      "moving": { "default": "mdi:robot-mower" },
+      "button_pressed": { "default": "mdi:gesture-tap-button" }
+    },
+    "select": {
+      "face": { "default": "mdi:emoticon-outline" },
+      "animation": { "default": "mdi:animation-play" }
+    },
+    "light": {
+      "backpack": { "default": "mdi:led-strip" }
+    },
+    "switch": {
+      "head_light": { "default": "mdi:spotlight-beam" },
+      "personality": { "default": "mdi:heart" },
+      "auto": { "default": "mdi:robot-excited" },
+      "auto_sleep": { "default": "mdi:sleep" }
+    },
+    "button": {
+      "stop": { "default": "mdi:stop" },
+      "wake": { "default": "mdi:weather-sunset-up" },
+      "cancel_anim": { "default": "mdi:cancel" }
+    },
+    "number": {
+      "head_angle": { "default": "mdi:head" },
+      "lift_height": { "default": "mdi:arrow-up-down" },
+      "volume": { "default": "mdi:volume-high" }
+    },
+    "media_player": {
+      "speaker": { "default": "mdi:speaker" }
+    }
+  },
+  "services": {
+    "drive": { "service": "mdi:robot-mower" },
+    "play_anim": { "service": "mdi:animation-play" },
+    "set_face": { "service": "mdi:emoticon-outline" },
+    "stop": { "service": "mdi:stop" },
+    "play_audio": { "service": "mdi:volume-high" },
+    "set_head": { "service": "mdi:head" },
+    "set_lift": { "service": "mdi:arrow-up-down" },
+    "wifi_join": { "service": "mdi:wifi" }
+  }
+}

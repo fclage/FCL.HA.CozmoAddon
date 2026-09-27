@@ -1,0 +1,22 @@
+[Unit]
+Description=hacozmo companion for Home Assistant (pycozmo)
+Documentation=https://github.com/fclage/Home-Assistant-Cozmo-Integration
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Change User/Group/paths to match the host that owns the USB Wi-Fi radio.
+User=cozmo
+Group=cozmo
+WorkingDirectory=/opt/hacozmo
+EnvironmentFile=-/opt/hacozmo/.env
+ExecStart=/opt/hacozmo/.venv/bin/python -m companion
+Restart=on-failure
+RestartSec=5
+
+# USB Wi-Fi only; do not bind this process to the LAN default route.
+# Joining Cozmo_XXXXXX is handled by the daemon when COZMO_WIFI_IFACE is set.
+
+[Install]
+WantedBy=multi-user.target

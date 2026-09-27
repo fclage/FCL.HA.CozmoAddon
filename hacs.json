@@ -1,0 +1,6 @@
+{
+  "name": "Cozmo",
+  "render_readme": true,
+  "homeassistant": "2025.1.0",
+  "hide_default_branch": true
+}
