@@ -1,6 +1,6 @@
 [Unit]
 Description=hacozmo companion for Home Assistant (pycozmo)
-Documentation=https://github.com/fclage/Home-Assistant-Cozmo-Integration
+Documentation=https://github.com/fclage/FCL.HA.CozmoAddon
 After=network-online.target
 Wants=network-online.target
 
