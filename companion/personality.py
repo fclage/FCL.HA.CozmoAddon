@@ -137,6 +137,30 @@ def should_greet(*, personality: bool, said_hello: bool, docked: bool) -> bool:
     return bool(personality) and not said_hello and not docked
 
 
+# One in four shifts lands on the resting face. The rest are other expressions.
+NORMAL_FACE_WEIGHT = 25
+
+
+def next_face(current: Optional[str], roll: int, names: tuple[str, ...] = ()) -> str:
+    """Pick the next OLED expression. ``roll`` is 0–99, or any integer.
+
+    A roll in the first 25 percent of 100 returns the neutral face. Otherwise
+    the result is a different expression from ``names``.
+    """
+    if names:
+        catalog = names
+    else:
+        from .faces import FACE_NAMES
+
+        catalog = FACE_NAMES
+    if roll % 100 < NORMAL_FACE_WEIGHT:
+        return "neutral"
+    others = [name for name in catalog if name not in {current, "neutral"}]
+    if not others:
+        return "neutral"
+    return others[roll % len(others)]
+
+
 def choose_mood(*, battery: Optional[int], on_charger: bool, pick: int) -> str:
     """Pick a mood. ``pick`` is any integer; tests pass it instead of a RNG."""
     if battery is not None and battery < 18:

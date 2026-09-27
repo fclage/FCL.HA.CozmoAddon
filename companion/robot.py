@@ -259,32 +259,23 @@ class RobotSession:
                 self.submit("connect")
 
     def _personality_loop(self) -> None:
-        """Animated face plus an in-place fidget. Not pycozmo.brain (that is WIP)."""
-        from .personality import choose_mood, plan_beat
+        """Shift the OLED every few seconds. Not pycozmo.brain (that is WIP)."""
 
         while not self._stop.is_set():
-            time.sleep(18)
+            # A few seconds, not long enough for the OLED to sit on one frame.
+            time.sleep(4)
             with self._lock:
                 enabled = self._personality and self._connected and not self.settings.get("dry_run")
                 held = time.time() < self._suppress_until
-                battery = _battery_percent(float(getattr(self._cli, "battery_voltage", 0.0) or 0.0)) if self._cli else None
-                on_charger = self._on_charger
                 moving = bool(getattr(self._cli, "robot_moving", False)) if self._cli else False
                 flags = int(getattr(self._cli, "robot_status", 0) or 0) if self._cli else 0
-                clips = list(self._anim_names)
-                last_clip = self._last_clip
-                allow_phrase = (time.time() - self._last_phrase_ts) > 600
-            if not enabled or held or moving or bool(flags & 0x40):
+                current = self._face
+            if not enabled or held or moving or bool(flags & 0x40) or self._powering_off:
                 continue
-            mood = choose_mood(battery=battery, on_charger=on_charger, pick=int(time.time()) % 3)
-            beat = plan_beat(mood=mood, clips=clips, last_clip=last_clip, allow_phrase=allow_phrase and mood == "low_battery")
+            expression = self._living_face(current)
             with self._lock:
-                self._mood = beat["mood"]
-            self.submit("face", expression=beat["face"], quiet=True)
-            self.submit("backpack", rgb=beat["backpack"], brightness=70, quiet=True)
-            if beat["phrase_id"]:
-                self._last_phrase_ts = time.time()
-                self.submit("speak", phrase_id=beat["phrase_id"], quiet=True)
+                self._mood = expression
+            self.submit("face", expression=expression, quiet=True)
 
     def _auto_loop(self) -> None:
         """After 30s with no taps, play. Faces keep going even when this is off."""
@@ -602,13 +593,26 @@ class RobotSession:
     def _face_loop(self) -> None:
         """Cozmo blanks the OLED about 30s after the last image, and an animation end clears it."""
         while not self._stop.is_set():
-            time.sleep(1.5)
-            if self._stop.is_set():
+            # Personality already moves the face. A fast redraw would pin the
+            # last interpolated frame. Refresh slowly only as a blank-screen guard.
+            time.sleep(4 if self._personality else 1.5)
+            if self._stop.is_set() or self._powering_off:
                 return
+            if self._personality:
+                continue
             self._paint_face()
+
+    def _living_face(self, current: Optional[str]) -> str:
+        from .personality import next_face
+
+        return next_face(current, int(time.time() * 1000) % 100)
 
     def _on_anim_done(self, _cli) -> None:
         if self._powering_off:
+            return
+        # Do not leave the clip's last frame on the screen.
+        if self._personality:
+            self.submit("face", expression=self._living_face(self._face), quiet=True)
             return
         self._paint_face()
 

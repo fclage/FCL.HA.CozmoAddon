@@ -1,7 +1,7 @@
 from companion.auto import auto_ready, pick_auto_action, sleep_ready
 from companion.cubes import cube_slot
 from companion.keepalive import link_action
-from companion.personality import catalog, choose_mood, phrase_by_id, plan_beat, should_greet
+from companion.personality import catalog, choose_mood, next_face, phrase_by_id, plan_beat, should_greet
 from companion.robot import clamp_nudge
 
 
@@ -48,6 +48,16 @@ def test_greeting_stays_off_the_charger() -> None:
     assert should_greet(personality=True, said_hello=False, docked=True) is False
     assert should_greet(personality=True, said_hello=False, docked=False) is True
     assert should_greet(personality=True, said_hello=True, docked=False) is False
+
+
+def test_living_face_rests_a_quarter_of_the_time() -> None:
+    names = ("neutral", "happiness", "excitement", "confusion")
+    assert next_face("happiness", 0, names) == "neutral"
+    assert next_face("happiness", 24, names) == "neutral"
+    assert next_face("happiness", 25, names) != "neutral"
+    assert next_face("happiness", 25, names) != "happiness"
+    resting = sum(next_face("excitement", roll, names) == "neutral" for roll in range(100))
+    assert resting == 25
 
 
 def test_mood_follows_battery_and_charger() -> None:
