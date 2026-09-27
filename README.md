@@ -56,7 +56,27 @@ The buttons only work in a browser that can reach your Home Assistant. They do n
 
 The integration does not speak to Cozmo by itself. A companion process joins the robot’s access point and exposes `http://<host>:8790`.
 
-On the machine that has the dedicated Wi-Fi adapter:
+On the machine that has the dedicated Wi-Fi adapter, paste:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fclage/FCL.HA.CozmoAddon/main/install.sh | bash
+```
+
+The script clones this repository into `/opt/ha-cozmo`, creates the Python environment from `companion/requirements.txt` inside that folder, asks for the SSID and password printed on the lift, and starts the companion. Preview the same steps without changing the machine:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fclage/FCL.HA.CozmoAddon/main/install.sh | bash -s -- --dry-run
+```
+
+If you already cloned the repository, run it from that directory instead. It will not clone a second copy:
+
+```bash
+git clone https://github.com/fclage/FCL.HA.CozmoAddon.git
+cd FCL.HA.CozmoAddon
+./install.sh
+```
+
+### Manual install
 
 ```bash
 git clone https://github.com/fclage/FCL.HA.CozmoAddon.git
@@ -64,9 +84,10 @@ cd FCL.HA.CozmoAddon
 python3 -m venv .venv
 .venv/bin/pip install -r companion/requirements.txt
 .venv/bin/pycozmo_resources.py download
-cp .env.example /etc/ha-cozmo-companion.env
-# edit the SSID, password, and Wi-Fi interface
-sudo install -m 600 /etc/ha-cozmo-companion.env /etc/ha-cozmo-companion.env
+cp .env.example /tmp/ha-cozmo-companion.env
+# edit the SSID, password, and Wi-Fi interface in that file
+sudo install -m 600 /tmp/ha-cozmo-companion.env /etc/ha-cozmo-companion.env
+rm -f /tmp/ha-cozmo-companion.env
 ```
 
 Commands after `cd FCL.HA.CozmoAddon` use paths inside that clone (`companion/requirements.txt`, `.env.example`).
