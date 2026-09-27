@@ -20,7 +20,7 @@ Unofficial custom integration for the Anki / Digital Dream Labs **Cozmo** robot.
 - Home Assistant **2025.1** or newer
 - A Cozmo robot with a charged battery
 - A computer that can run the companion (Linux with NetworkManager is the tested path)
-- A **second** Wi-Fi adapter dedicated to Cozmo. Do not use the interface that carries your normal network
+- A Wi-Fi adapter dedicated to Cozmo. Do not use the interface that carries your normal network
 
 Cozmo is not a device on your LAN. When you put it in SDK mode it starts its own access point. The name looks like `Cozmo_` plus the characters printed on the lift, and the password is printed there too. Only a station joined to that access point can reach the robot, which is always `172.31.1.1` UDP port `5551`.
 

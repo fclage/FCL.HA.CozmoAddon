@@ -16,7 +16,7 @@ Adapters based on the Realtek RTL8812BU chipset are a known working class (some 
 
 ## Dedicated adapter
 
-Use a second interface. The companion creates a NetworkManager profile named `cozmo-ap` with:
+Use an interface dedicated to Cozmo. Do not use the interface that carries your normal network. The companion creates a NetworkManager profile named `cozmo-ap` with:
 
 - `ipv4.method` auto
 - `ipv4.never-default` yes, so this link does not replace your normal default route
