@@ -44,6 +44,14 @@ Copy `custom_components/ha_cozmo` to your Home Assistant config directory:
 
 Restart Home Assistant.
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=fclage&repository=FCL.HA.CozmoAddon&category=integration)
+
+That button adds this repository in HACS. After you download **Cozmo** and restart, this one opens the setup dialog:
+
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start?domain=ha_cozmo)
+
+The buttons only work in a browser that can reach your Home Assistant. They do nothing until HACS is installed for the first button, and until the integration files are in place for the second.
+
 ## Install the companion
 
 The integration does not speak to Cozmo by itself. A companion process joins the robot’s access point and exposes `http://<host>:8790`.
@@ -51,6 +59,8 @@ The integration does not speak to Cozmo by itself. A companion process joins the
 On the machine that has the dedicated Wi-Fi adapter:
 
 ```bash
+git clone https://github.com/fclage/FCL.HA.CozmoAddon.git
+cd FCL.HA.CozmoAddon
 python3 -m venv .venv
 .venv/bin/pip install -r companion/requirements.txt
 .venv/bin/pycozmo_resources.py download
@@ -58,6 +68,19 @@ cp .env.example /etc/ha-cozmo-companion.env
 # edit the SSID, password, and Wi-Fi interface
 sudo install -m 600 /etc/ha-cozmo-companion.env /etc/ha-cozmo-companion.env
 ```
+
+Commands after `cd FCL.HA.CozmoAddon` use paths inside that clone (`companion/requirements.txt`, `.env.example`).
+
+By default the HTTP API accepts only loopback and private addresses (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, and IPv6 unique-local). Public addresses are refused. Change that with `COZMO_ALLOW` in the environment file or `--allow` on the command line:
+
+| Value | Who can connect |
+| --- | --- |
+| `local` or `127.0.0.1` | This machine only |
+| `192.168.0.0/24` | That subnet |
+| `private` | Private ranges and loopback. This is the default when the setting is omitted |
+| `all` | Any address |
+
+Several rules can be combined with commas, for example `local,192.168.1.0/24`.
 
 Run it in the foreground first:
 

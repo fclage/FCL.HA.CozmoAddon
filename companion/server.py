@@ -13,6 +13,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from . import personality
+from .access import client_allowed
 from .robot import RobotSession
 from .wifi import list_unbound_wifi, list_wifi_devices, scan_cozmo_networks, wifi_status
 
@@ -29,12 +30,21 @@ class CompanionHandler(BaseHTTPRequestHandler):
     server_version = "ha-cozmo-companion/0.1"
     robot: RobotSession
     token: str = ""
+    allow: str = "private"
 
     def log_message(self, fmt: str, *args: Any) -> None:
         log.info("%s - %s", self.address_string(), fmt % args)
 
     def _unauthorized(self) -> None:
         self._send(*_json_bytes({"ok": False, "error": "unauthorized"}, 401))
+
+    def _check_allow(self) -> bool:
+        ip = self.client_address[0]
+        if client_allowed(ip, self.allow):
+            return True
+        log.warning("rejected %s %s from %s", self.command, self.path, ip)
+        self._send(*_json_bytes({"ok": False, "error": "forbidden"}, 403))
+        return False
 
     def _check_auth(self) -> bool:
         if not self.token:
@@ -116,6 +126,8 @@ class CompanionHandler(BaseHTTPRequestHandler):
             return
 
     def do_GET(self) -> None:  # noqa: N802
+        if not self._check_allow():
+            return
         path = urlparse(self.path).path.rstrip("/") or "/"
         public = path in ("/", "/v1/health", "/v1/wifi/scan", "/v1/wifi/ifaces") or path.startswith("/ui")
         if not public and not self._check_auth():
@@ -180,6 +192,8 @@ class CompanionHandler(BaseHTTPRequestHandler):
             self._send(*_json_bytes({"ok": False, "error": str(exc)}, 500))
 
     def do_POST(self) -> None:  # noqa: N802
+        if not self._check_allow():
+            return
         if not self._check_auth():
             return
         path = urlparse(self.path).path.rstrip("/") or "/"
@@ -228,11 +242,17 @@ class CompanionHandler(BaseHTTPRequestHandler):
             self._send(*_json_bytes({"ok": False, "error": str(exc)}, 500))
 
 
-def serve(robot: RobotSession, host: str, port: int, token: str = "") -> ThreadingHTTPServer:
+def serve(
+    robot: RobotSession,
+    host: str,
+    port: int,
+    token: str = "",
+    allow: str = "private",
+) -> ThreadingHTTPServer:
     handler = type(
         "BoundHandler",
         (CompanionHandler,),
-        {"robot": robot, "token": token},
+        {"robot": robot, "token": token, "allow": allow or "private"},
     )
     httpd = ThreadingHTTPServer((host, port), handler)
     return httpd

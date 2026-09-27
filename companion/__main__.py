@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import logging
 import os
 import signal
@@ -33,16 +34,27 @@ def _truthy(value: str) -> bool:
 
 
 def main(argv: list[str] | None = None) -> int:
-    del argv
     root = Path(__file__).resolve().parents[1]
     load_dotenv(root / ".env")
+    parser = argparse.ArgumentParser(prog="python -m companion")
+    parser.add_argument(
+        "--listen",
+        default=os.environ.get("LISTEN", "0.0.0.0:8790"),
+        help="host:port to bind (default 0.0.0.0:8790, or LISTEN)",
+    )
+    parser.add_argument(
+        "--allow",
+        default=os.environ.get("COZMO_ALLOW", "private"),
+        help="who may connect: local, a CIDR, private, or all (default private, or COZMO_ALLOW)",
+    )
+    args = parser.parse_args(argv)
 
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(name)s %(levelname)s %(message)s",
     )
 
-    listen = os.environ.get("LISTEN", "0.0.0.0:8790")
+    listen = args.listen
     if ":" in listen:
         host, port_s = listen.rsplit(":", 1)
         port = int(port_s)
@@ -77,7 +89,9 @@ def main(argv: list[str] | None = None) -> int:
         robot.submit("wifi_join")
     robot.submit("connect")
 
-    httpd = serve(robot, host, port, token=token)
+    allow = args.allow or "private"
+    log.info("HTTP allow policy: %s", allow)
+    httpd = serve(robot, host, port, token=token, allow=allow)
 
     def _shutdown(_signum=None, _frame=None) -> None:
         log.info("shutting down")

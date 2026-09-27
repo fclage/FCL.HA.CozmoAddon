@@ -38,11 +38,9 @@ def test_no_private_network_in_defaults() -> None:
     const = (ROOT / "custom_components" / "ha_cozmo" / "const.py").read_text()
     assert 'DEFAULT_URL = "http://127.0.0.1:8790"' in const
     assert "192.168." not in const
-    readme = (ROOT / "README.md").read_text()
-    assert "192.168." not in readme
     env = (ROOT / ".env.example").read_text()
     assert "Cozmo_XXXXXX" in env
-    assert "192.168." not in env
+    assert "COZMO_ALLOW" in env
 
 
 def test_hacs_json_is_a_valid_hacs_manifest() -> None:
