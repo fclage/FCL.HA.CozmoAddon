@@ -112,7 +112,21 @@ set +a
 .venv/bin/python -m companion
 ```
 
-`GET http://127.0.0.1:8790/v1/health` should return OK. A systemd unit is in [`contrib/ha-cozmo-companion.service`](contrib/ha-cozmo-companion.service). The service user must be allowed to run `nmcli` (NetworkManager) without a password prompt, because joining an access point changes system network state.
+`GET http://127.0.0.1:8790/v1/health` should return OK. A systemd unit is in [`contrib/ha-cozmo-companion.service`](contrib/ha-cozmo-companion.service). The one-line installer runs the service as root, so NetworkManager is already allowed. If you run it as a normal user, that user must be able to run `nmcli` without a password prompt, because joining an access point changes system network state.
+
+For a service user named `cozmo`:
+
+```bash
+sudo visudo -f /etc/sudoers.d/ha-cozmo
+```
+
+Put this in the file, then save:
+
+```text
+cozmo ALL=(root) NOPASSWD: /usr/bin/nmcli, /usr/sbin/iw, /usr/bin/python3
+```
+
+Replace `cozmo` with the account in the systemd unit. `nmcli` joins the access point, `iw` turns off power save, and `python3` stores the lift password in the NetworkManager profile. Check it with `sudo -u cozmo sudo -n nmcli general hostname`. It should print a name and not ask for a password.
 
 Then in Home Assistant: **Settings → Devices & services → Add integration → Cozmo**.
 

@@ -1,7 +1,15 @@
 from companion.auto import auto_ready, pick_auto_action, sleep_ready
 from companion.cubes import cube_slot
 from companion.keepalive import link_action
-from companion.personality import catalog, choose_mood, next_face, phrase_by_id, plan_beat, should_greet
+from companion.personality import (
+    catalog,
+    choose_mood,
+    face_gap,
+    next_face,
+    phrase_by_id,
+    plan_beat,
+    should_greet,
+)
 from companion.robot import clamp_nudge
 
 
@@ -48,6 +56,13 @@ def test_greeting_stays_off_the_charger() -> None:
     assert should_greet(personality=True, said_hello=False, docked=True) is False
     assert should_greet(personality=True, said_hello=False, docked=False) is True
     assert should_greet(personality=True, said_hello=True, docked=False) is False
+
+
+def test_face_gap_wanders_around_twenty_seconds() -> None:
+    assert face_gap(0) == 20
+    assert face_gap(-1) == 16
+    assert face_gap(1) == 24
+    assert face_gap(-5) == 16
 
 
 def test_living_face_rests_a_quarter_of_the_time() -> None:

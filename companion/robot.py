@@ -259,11 +259,16 @@ class RobotSession:
                 self.submit("connect")
 
     def _personality_loop(self) -> None:
-        """Shift the OLED every few seconds. Not pycozmo.brain (that is WIP)."""
+        """Shift the OLED on an uneven pause. Not pycozmo.brain (that is WIP)."""
+        import random
+
+        from .personality import face_gap
 
         while not self._stop.is_set():
-            # A few seconds, not long enough for the OLED to sit on one frame.
-            time.sleep(4)
+            pause = face_gap(random.uniform(-1.0, 1.0))
+            deadline = time.time() + pause
+            while time.time() < deadline and not self._stop.is_set():
+                time.sleep(min(1.0, deadline - time.time()))
             with self._lock:
                 enabled = self._personality and self._connected and not self.settings.get("dry_run")
                 held = time.time() < self._suppress_until

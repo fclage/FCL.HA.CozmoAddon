@@ -139,6 +139,15 @@ def should_greet(*, personality: bool, said_hello: bool, docked: bool) -> bool:
 
 # One in four shifts lands on the resting face. The rest are other expressions.
 NORMAL_FACE_WEIGHT = 25
+# Idle face changes wait about this long, then slide a few seconds either way.
+FACE_GAP_S = 20.0
+FACE_GAP_JITTER_S = 4.0
+
+
+def face_gap(roll: float, base: float = FACE_GAP_S, jitter: float = FACE_GAP_JITTER_S) -> float:
+    """Seconds until the next expression. ``roll`` is from -1 to 1."""
+    roll = max(-1.0, min(1.0, float(roll)))
+    return base + (roll * jitter)
 
 
 def next_face(current: Optional[str], roll: int, names: tuple[str, ...] = ()) -> str:
