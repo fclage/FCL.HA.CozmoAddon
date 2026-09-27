@@ -6,6 +6,10 @@
 
 Unofficial custom integration for the Anki / Digital Dream Labs **Cozmo** robot. Drive, camera, face, speech, lights, and light cubes from Home Assistant.
 
+![Cozmo](docs/images/cozmo-product-1.jpg)
+
+*Product photograph © Anki, Inc. Source: [anki.bot/products/cozmo-robot](https://anki.bot/products/cozmo-robot).*
+
 **Not affiliated with Anki or Digital Dream Labs.** Cozmo’s Wi-Fi and protocol are handled by a small companion process built on [PyCozmo](https://github.com/zayfod/pycozmo). Use at your own risk.
 
 **Author:** Filipe Lage  
@@ -119,6 +123,10 @@ Then you can use cards `custom:cozmo-pad` and `custom:cozmo-say`.
 
 **Wake up**, **Auto**, and **Auto-sleep** stay available while the robot is off, as long as the companion process is running. **Power off** is available only while the robot is connected.
 
+![Light cube symbols](docs/images/cozmo-cubes.png)
+
+*Cube symbol chart © Anki, Inc.*
+
 ### Cubes
 
 Cozmo can hear several light cubes, but this integration’s connect command uses a single radio slot. Connecting a second cube disconnects the one already linked. **Link cubes** therefore links one cube and will not send another connect while that slot is taken. Each cube still exposes a battery reading, a tap sensor (on for a few seconds after a tap), and four LED lights once it is the linked cube.
@@ -146,6 +154,8 @@ python3 -m venv .venv
 
 ## License
 
-MIT. Copyright (c) 2026 Filipe Lage. See [LICENSE](LICENSE).
+The source code in this repository is MIT. Copyright (c) 2026 Filipe Lage. See [LICENSE](LICENSE).
+
+Cozmo®, the robot, the light cubes, the names, the product photographs, the artwork, and the related intellectual property are © Anki, Inc. They remain Anki’s property (and that of Anki’s successors). The pictures under `docs/images/` were taken from [anki.bot/products/cozmo-robot](https://anki.bot/products/cozmo-robot) only to identify the product. They are not part of the MIT license. See [docs/images/COPYRIGHT.md](docs/images/COPYRIGHT.md).
 
 PyCozmo is a separate project: <https://github.com/zayfod/pycozmo>.
