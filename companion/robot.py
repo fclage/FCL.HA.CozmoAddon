@@ -13,7 +13,7 @@ from typing import Any, Callable, Optional
 from .audio_util import AudioError, to_cozmo_wav
 from .cubes import blank_cube, cube_slot
 from .faces import FACE_NAMES, KNOWN_CLIPS, interpolate_to, render_expression
-from .keepalive import link_action
+from .keepalive import STALE_STATE_S, link_action, session_fresh
 
 log = logging.getLogger("ha_cozmo.robot")
 
@@ -29,6 +29,15 @@ MAX_LIFT_MM = 92.0
 
 def clamp_nudge(current: float, delta: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, float(current) + float(delta)))
+
+
+def should_cut_power(*, powering_off: bool, sleeping: bool, has_client: bool) -> bool:
+    """Power off again must still drop a session that failed to shut down."""
+    if powering_off:
+        return False
+    if sleeping and not has_client:
+        return False
+    return True
 
 
 def _battery_percent(voltage: float) -> Optional[int]:
@@ -181,7 +190,13 @@ class RobotSession:
     def camera_jpeg(self) -> Optional[bytes]:
         with self._lock:
             image = self._last_image
+            ts = self._last_image_ts
+            dry = bool(self.settings.get("dry_run"))
         if image is None:
+            return None
+        # A wedged engine keeps the last JPEG forever. Drop it so the
+        # camera goes empty instead of looking frozen.
+        if not dry and (ts is None or time.time() - ts > STALE_STATE_S):
             return None
         buf = io.BytesIO()
         image.convert("RGB").save(buf, format="JPEG", quality=80)
@@ -387,6 +402,11 @@ class RobotSession:
         return self._cli
 
     def _do_connect(self) -> None:
+        with self._lock:
+            # A connect queued before power-off must not bring the engine back.
+            if self._sleeping and not self._raise_on_connect:
+                log.info("not connecting — Cozmo is powered off")
+                return
         if self.settings.get("dry_run"):
             with self._lock:
                 self._connected = True
@@ -437,8 +457,9 @@ class RobotSession:
         except Exception as exc:  # noqa: BLE001
             log.warning("animation assets not loaded: %s", exc)
             names, groups = [], []
-        cli.enable_camera(enable=True, color=bool(self.settings.get("camera_color", True)))
         cli.set_volume(int(self._volume / 100 * 65535))
+        # Face first. The animation heartbeat otherwise resends a blank
+        # frame until something paints, and the camera starts on top of that.
         import pycozmo.robot as pycozmo_robot
 
         docked = bool(int(getattr(cli, "robot_status", 0) or 0) & pycozmo_robot.RobotStatusFlag.IS_ON_CHARGER)
@@ -476,6 +497,7 @@ class RobotSession:
                 self._said_hello = True
         log.info("Cozmo connected (%s clips)", len(names))
         self._paint_face()
+        cli.enable_camera(enable=True, color=bool(self.settings.get("camera_color", False)))
         self._note_link_action()
         self.submit("cubes_connect")
         if self._raise_on_connect:
@@ -486,10 +508,23 @@ class RobotSession:
         if greet:
             self.submit("speak", phrase_id="im_cozmo")
 
-    def _do_disconnect(self) -> None:
-        cli = self._cli
-        self._cli = None
-        self._connected = False
+    def _detach_client(self):
+        """Drop the session pointer before stopping threads.
+
+        Event handlers and the animation heartbeat must not keep using a
+        client we are about to join.
+        """
+        with self._lock:
+            cli = self._cli
+            self._cli = None
+            self._connected = False
+            self._last_image = None
+            self._last_image_ts = None
+            self._last_state_ts = None
+        return cli
+
+    def _release_client(self, cli) -> None:
+        """Send disconnect and stop the heartbeat that holds the motors."""
         if cli is None:
             return
         try:
@@ -500,6 +535,9 @@ class RobotSession:
             cli.stop()
         except Exception:  # noqa: BLE001
             pass
+
+    def _do_disconnect(self) -> None:
+        self._release_client(self._detach_client())
 
     def _do_drive(self, left: float = 0, right: float = 0, duration: float = 0.5) -> None:
         left = max(-MAX_WHEEL_MMPS, min(MAX_WHEEL_MMPS, float(left)))
@@ -601,8 +639,10 @@ class RobotSession:
             # Personality already moves the face. A fast redraw would pin the
             # last interpolated frame. Refresh slowly only as a blank-screen guard.
             time.sleep(4 if self._personality else 1.5)
-            if self._stop.is_set() or self._powering_off:
+            if self._stop.is_set():
                 return
+            if self._powering_off:
+                continue
             if self._personality:
                 continue
             self._paint_face()
@@ -737,35 +777,56 @@ class RobotSession:
 
     def _do_power_off(self) -> None:
         with self._lock:
-            if self._sleeping or self._powering_off:
+            cut = should_cut_power(
+                powering_off=self._powering_off,
+                sleeping=self._sleeping,
+                has_client=self._cli is not None,
+            )
+            if not cut:
                 return
             self._powering_off = True
             self._sleeping = True
-        cli = self._cli
-        log.info("powering off after the tired animation")
-        if cli is not None:
-            try:
-                self._play_clip_forced(cli, "anim_gotosleep_getin_01")
-            except Exception as exc:  # noqa: BLE001
-                log.info("tired animation skipped: %s", exc)
+            last = self._last_state_ts
+            connected = self._connected and self._cli is not None
+        fresh = session_fresh(
+            connected=connected,
+            state_age_s=(time.time() - last) if last else None,
+        )
+        cli = self._detach_client()
+        try:
+            if cli is not None and fresh:
+                log.info("powering off after the tired animation")
                 try:
-                    self._do_face("tiredness")
+                    self._play_clip_forced(cli, "anim_gotosleep_getin_01")
+                except Exception as exc:  # noqa: BLE001
+                    log.info("tired animation skipped: %s", exc)
+                    try:
+                        from .faces import interpolate_to
+
+                        with self._lock:
+                            previous = self._face or "neutral"
+                            self._face = "tiredness"
+                        interpolate_to(cli, "tiredness", previous)
+                    except Exception:  # noqa: BLE001
+                        pass
+                try:
+                    cli.stop_all_motors()
                 except Exception:  # noqa: BLE001
                     pass
-            try:
-                cli.stop_all_motors()
-            except Exception:  # noqa: BLE001
-                pass
-            try:
-                import pycozmo
+                try:
+                    import pycozmo
 
-                cli.conn.send(pycozmo.protocol_encoder.ShutdownRobot())
-            except Exception as exc:  # noqa: BLE001
-                log.warning("power off failed: %s", exc)
-        with self._lock:
-            self._connected = False
-            self._cli = None
-            self._powering_off = False
+                    cli.conn.send(pycozmo.protocol_encoder.ShutdownRobot())
+                except Exception as exc:  # noqa: BLE001
+                    log.warning("power off failed: %s", exc)
+                # Let the shutdown packet leave before the socket closes.
+                time.sleep(0.5)
+            elif cli is not None:
+                log.warning("link is not fresh — releasing the session")
+            self._release_client(cli)
+        finally:
+            with self._lock:
+                self._powering_off = False
 
     def _raise_from_sleep(self) -> None:
         """Open the eyes and lift the head. Wheels stay still, including on the charger."""
@@ -777,9 +838,16 @@ class RobotSession:
             self._sleeping = False
             self._powering_off = False
             self._last_user = time.time()
-            connected = self._connected
-        if not connected:
+            connected = self._connected and self._cli is not None
+            last = self._last_state_ts
+        fresh = session_fresh(
+            connected=connected,
+            state_age_s=(time.time() - last) if last else None,
+        )
+        if not fresh:
+            # Close whatever is still heartbeating, then open one session.
             self._raise_on_connect = True
+            self.submit("disconnect")
             self.submit("wifi_join")
             self.submit("connect")
             return

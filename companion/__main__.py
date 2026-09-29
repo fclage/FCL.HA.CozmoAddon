@@ -67,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
         "wifi_iface": os.environ.get("COZMO_WIFI_IFACE", ""),
         "robot_host": os.environ.get("COZMO_HOST", "172.31.1.1"),
         "robot_port": int(os.environ.get("COZMO_PORT", "5551")),
-        "camera_color": _truthy(os.environ.get("CAMERA_COLOR", "1")),
+        "camera_color": _truthy(os.environ.get("CAMERA_COLOR", "0")),
         "dry_run": _truthy(os.environ.get("COZMO_DRY_RUN", "0")),
         "ffmpeg": os.environ.get("FFMPEG_PATH", "ffmpeg"),
     }

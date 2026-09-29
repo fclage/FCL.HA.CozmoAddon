@@ -1,6 +1,7 @@
 from companion.auto import auto_ready, pick_auto_action, sleep_ready
 from companion.cubes import cube_slot
-from companion.keepalive import link_action
+from companion.keepalive import link_action, session_fresh
+from companion.robot import clamp_nudge, should_cut_power
 from companion.personality import (
     catalog,
     choose_mood,
@@ -10,7 +11,6 @@ from companion.personality import (
     plan_beat,
     should_greet,
 )
-from companion.robot import clamp_nudge
 
 
 def test_catalog_has_phrases_and_anims() -> None:
@@ -122,3 +122,17 @@ def test_link_action_waits_then_rejoins_or_reconnects() -> None:
     assert link_action(wifi_ok=True, connected=True, state_age_s=5, since_action_s=20) == "reconnect"
     assert link_action(wifi_ok=True, connected=False, state_age_s=None, since_action_s=20) == "connect"
     assert link_action(wifi_ok=True, connected=True, state_age_s=0.4, since_action_s=20) is None
+
+
+def test_session_fresh_requires_a_recent_state() -> None:
+    assert session_fresh(connected=True, state_age_s=0.4) is True
+    assert session_fresh(connected=True, state_age_s=5) is False
+    assert session_fresh(connected=True, state_age_s=None) is False
+    assert session_fresh(connected=False, state_age_s=0.1) is False
+
+
+def test_power_off_retries_while_a_client_is_still_held() -> None:
+    assert should_cut_power(powering_off=False, sleeping=False, has_client=True) is True
+    assert should_cut_power(powering_off=True, sleeping=False, has_client=True) is False
+    assert should_cut_power(powering_off=False, sleeping=True, has_client=False) is False
+    assert should_cut_power(powering_off=False, sleeping=True, has_client=True) is True

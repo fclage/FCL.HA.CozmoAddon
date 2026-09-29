@@ -11,6 +11,18 @@ STALE_STATE_S = 2.5
 MIN_ACTION_GAP_S = 20.0
 
 
+def session_fresh(
+    *,
+    connected: bool,
+    state_age_s: float | None,
+    stale_after: float = STALE_STATE_S,
+) -> bool:
+    """True when the open session is still receiving robot state."""
+    if not connected or state_age_s is None:
+        return False
+    return state_age_s <= stale_after
+
+
 def link_action(
     *,
     wifi_ok: bool,
