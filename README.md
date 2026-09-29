@@ -12,6 +12,8 @@ Unofficial custom integration for the Anki / Digital Dream Labs **Cozmo** robot.
 
 **Not affiliated with Anki or Digital Dream Labs.** Cozmo’s Wi-Fi and protocol are handled by a small companion process built on [PyCozmo](https://github.com/zayfod/pycozmo). Use at your own risk.
 
+Current release: **[0.1.0](CHANGELOG.md)**.
+
 **Author:** Filipe Lage  
 **Developer:** Grok Code (xAI)
 
@@ -139,7 +141,7 @@ Then in Home Assistant: **Settings → Devices & services → Add integration �
 
 The password is stored in the Home Assistant config entry and in the companion environment file.
 
-Wi-Fi details, including why some USB adapters fail to associate, are in [docs/wifi.md](docs/wifi.md).
+Wi-Fi details, including why some USB adapters fail to associate, are in [docs/wifi.md](docs/wifi.md). Companion settings are in [docs/settings.md](docs/settings.md). Recovery for a stiff robot, a blank face, or a frozen camera is in [docs/known-issues.md](docs/known-issues.md).
 
 ## Dashboard
 
@@ -159,7 +161,8 @@ An optional on-screen pad (short steps for the lift and head, and a text box tha
 Then you can use cards `custom:cozmo-pad` and `custom:cozmo-say`.
 
 ## What you can control
-<img width="1360" height="878" alt="image" src="https://github.com/user-attachments/assets/a53e0070-12b4-4214-a9c5-241536dba896" />
+
+![Home Assistant dashboard for Cozmo](docs/images/home-assistant-cozmo-dashboard.png)
 
 | Area | Entities and actions |
 | --- | --- |
@@ -167,7 +170,7 @@ Then you can use cards `custom:cozmo-pad` and `custom:cozmo-say`.
 | Power | **Power off** plays the get-into-sleep animation, then shuts the body down. **Wake up** reconnects, opens the eyes, and raises the head without driving |
 | Auto | After 30 seconds with no taps, small motions and expressions. Off means driving is remote-only. Faces still update |
 | Auto-sleep | After 5 minutes with no taps, the same sleep-then-power-off sequence, including while docked |
-| Camera | Still frames from the robot camera |
+| Camera | **Camera** turns the stream on or off. **Color camera** selects color or black and white. The dashboard card is a still; `/v1/camera/stream` on the companion is the live view |
 | Move | Wheel speeds, head angle, lift height |
 | Face and reactions | Procedural expressions, named reactions, animation clips |
 | Speech | Phrase ids or any text (espeak on the companion host) |
@@ -189,6 +192,40 @@ Then you can use cards `custom:cozmo-pad` and `custom:cozmo-say`.
 ### Cubes
 
 Cozmo can hear several light cubes, but this integration’s connect command uses a single radio slot. Connecting a second cube disconnects the one already linked. **Link cubes** therefore links one cube and will not send another connect while that slot is taken. Each cube still exposes a battery reading, a tap sensor (on for a few seconds after a tap), and four LED lights once it is the linked cube.
+
+## Technical specifications
+
+These are the limits this companion uses. They match PyCozmo’s model of the body, not a full Anki datasheet.
+
+### Robot
+
+| Item | Value |
+| --- | --- |
+| Link | The robot is an access point. Address `172.31.1.1`, UDP port `5551` |
+| Wi-Fi | WPA2-PSK. The group cipher is TKIP |
+| Head | −25° to 44.5° |
+| Lift | 32 mm to 92 mm at the fork. Arm length 66 mm, pivot height 45 mm |
+| Wheels | −200 mm/s to 200 mm/s each. Track width 45 mm |
+| Face | 128×32 monochrome frames, sent with the animation stream at 30 frames per second |
+| Battery reading | Percentage is a straight map from 3.55 V (empty) to 4.05 V (full) |
+
+### Camera
+
+| Item | Value |
+| --- | --- |
+| Stream | 320×240 (QVGA), about 15 frames per second |
+| Encoding | Minimized JPEG. The quantization is about quality 50, which is the block pattern in the picture |
+| Color | 160×240 on the wire, scaled to 320×240 for display. Larger packets than grayscale |
+| Exposure | The phone app adjusts exposure. This body does not. Dim frames are lifted in the companion, up to 4×, and left alone when they are already bright |
+| Higher resolutions | Names such as VGA exist in the protocol. This firmware does not stream them |
+
+### Light cubes
+
+| Item | Value |
+| --- | --- |
+| Identities | Three cube types, slots 1–3, matching the symbol printed on the cube |
+| Radio | One cube can be linked at a time. A second connect drops the first |
+| Each linked cube | Battery reading, a tap sensor that stays on for a few seconds, and four LEDs |
 
 ### Known limits
 

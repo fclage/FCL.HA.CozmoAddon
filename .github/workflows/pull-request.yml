@@ -1,0 +1,40 @@
+name: Pull request
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  changelog-and-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require a changelog entry and a version bump
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha }}"
+          if ! git diff --name-only "$base" HEAD | grep -qx 'CHANGELOG.md'; then
+            echo "Update CHANGELOG.md for this change."
+            exit 1
+          fi
+          old="$(git show "$base:custom_components/ha_cozmo/manifest.json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["version"])')"
+          new="$(python3 -c 'import json; print(json.load(open("custom_components/ha_cozmo/manifest.json"))["version"])')"
+          comp="$(python3 -c 'import re; print(re.search(r"__version__ = \"([^\"]+)\"", open("companion/__init__.py").read()).group(1))')"
+          if [ "$old" = "$new" ]; then
+            echo "Bump the version in custom_components/ha_cozmo/manifest.json (it is still $old)."
+            exit 1
+          fi
+          if [ "$new" != "$comp" ]; then
+            echo "companion/__init__.py is $comp; manifest.json is $new."
+            exit 1
+          fi
+          if ! grep -q "^## $new\$" CHANGELOG.md; then
+            echo "CHANGELOG.md needs a heading: ## $new"
+            exit 1
+          fi
+          if ! grep -q "ha-cozmo-companion/$new" companion/server.py; then
+            echo "companion/server.py banner must say ha-cozmo-companion/$new"
+            exit 1
+          fi

@@ -1,0 +1,60 @@
+name: Bug report
+description: Something failed with the companion, the integration, or the robot
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste the lift password, a companion token, a filled environment file, or a packet capture.
+        Check [known issues](https://github.com/fclage/FCL.HA.CozmoAddon/blob/main/docs/known-issues.md) first.
+  - type: checkboxes
+    id: read
+    attributes:
+      label: Before opening
+      options:
+        - label: I read the known-issues page and this is not already described there
+          required: true
+        - label: This report contains no Wi-Fi password, token, or filled `.env`
+          required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you expected, and what the robot or Home Assistant did instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      placeholder: |
+        1. Cozmo was on the charger
+        2. I pressed …
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Companion log
+      description: Last lines from `journalctl -u ha-cozmo-companion -n 40 --no-pager`. Remove any password if one appears.
+      render: text
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Home Assistant, this integration, and the firmware line from the log if you have it (`Firmware version …`).
+      placeholder: Home Assistant 2026.x, integration main, firmware 2381
+    validations:
+      required: true
+  - type: dropdown
+    id: camera
+    attributes:
+      label: Camera switches at the time
+      options:
+        - Camera on, black and white
+        - Camera on, color
+        - Camera off
+        - Not sure
+    validations:
+      required: true

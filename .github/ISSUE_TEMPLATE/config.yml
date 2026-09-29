@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Known issues and recovery
+    url: https://github.com/fclage/FCL.HA.CozmoAddon/blob/main/docs/known-issues.md
+    about: Stiff arms, a blank face, a frozen camera, Wi-Fi, and firmware limits
+  - name: Companion settings
+    url: https://github.com/fclage/FCL.HA.CozmoAddon/blob/main/docs/settings.md
+    about: Environment file, who may call the API, and camera defaults

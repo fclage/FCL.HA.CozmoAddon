@@ -30,6 +30,13 @@ def test_manifest_required_fields() -> None:
     assert MANIFEST["quality_scale"] == "custom"
     assert MANIFEST["requirements"] == []
     assert MANIFEST["version"]
+    init = (ROOT / "companion" / "__init__.py").read_text()
+    server = (ROOT / "companion" / "server.py").read_text()
+    changelog = (ROOT / "CHANGELOG.md").read_text()
+    version = MANIFEST["version"]
+    assert f'__version__ = "{version}"' in init
+    assert f"ha-cozmo-companion/{version}" in server
+    assert f"## {version}\n" in changelog
     assert MANIFEST["documentation"].endswith("FCL.HA.CozmoAddon")
     assert MANIFEST["issue_tracker"].endswith("/issues")
 
