@@ -1,7 +1,7 @@
 from companion.auto import auto_ready, pick_auto_action, sleep_ready
 from companion.cubes import cube_slot
 from companion.keepalive import link_action, session_fresh
-from companion.robot import clamp_nudge, should_cut_power
+from companion.robot import clamp_nudge, lift_camera_frame, should_cut_power
 from companion.personality import (
     catalog,
     choose_mood,
@@ -129,6 +129,20 @@ def test_session_fresh_requires_a_recent_state() -> None:
     assert session_fresh(connected=True, state_age_s=5) is False
     assert session_fresh(connected=True, state_age_s=None) is False
     assert session_fresh(connected=False, state_age_s=0.1) is False
+
+
+def test_dim_camera_frame_is_lifted_and_a_bright_one_is_not() -> None:
+    from PIL import Image
+
+    dim = Image.new("L", (16, 16), 28)
+    lifted = lift_camera_frame(dim)
+    hist = lifted.histogram()
+    total = sum(hist)
+    mean = sum(level * count for level, count in enumerate(hist)) / total
+    assert mean > 80
+
+    bright = Image.new("RGB", (16, 16), (180, 180, 180))
+    assert lift_camera_frame(bright).histogram() == bright.histogram()
 
 
 def test_power_off_retries_while_a_client_is_still_held() -> None:

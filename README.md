@@ -195,7 +195,7 @@ Cozmo can hear several light cubes, but this integration’s connect command use
 - The companion keeps Cozmo off your default route (`ipv4.never-default`), so joining the robot must not take over your internet connection.
 - Group cipher TKIP is part of Cozmo’s access point. Adapters that refuse TKIP will not associate. See [docs/wifi.md](docs/wifi.md).
 - There is no microphone on the robot. Speech is outbound only.
-- The camera is grayscale unless `CAMERA_COLOR=1`. Color frames can stall the engine while the arms stay locked.
+- **Camera** turns the stream on or off. **Color camera** switches between color and black and white. Color frames are larger and can stall the engine. `CAMERA_COLOR` is only the starting value.
 - Animations need the PyCozmo asset download. Faces work without it.
 - Wake from a full power-off needs the backpack button first.
 

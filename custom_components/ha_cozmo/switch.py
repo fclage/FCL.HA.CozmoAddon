@@ -17,7 +17,14 @@ async def async_setup_entry(
 ) -> None:
     coord = entry.runtime_data
     async_add_entities(
-        [CozmoHeadLight(coord), CozmoPersonality(coord), CozmoAuto(coord), CozmoAutoSleep(coord)]
+        [
+            CozmoHeadLight(coord),
+            CozmoCameraStream(coord),
+            CozmoCameraColor(coord),
+            CozmoPersonality(coord),
+            CozmoAuto(coord),
+            CozmoAutoSleep(coord),
+        ]
     )
 
 
@@ -38,6 +45,48 @@ class CozmoHeadLight(CozmoEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs) -> None:
         del kwargs
         await self.coordinator.async_command("head_light", on=False)
+
+
+class CozmoCameraStream(CozmoEntity, SwitchEntity):
+    """Turn Cozmo's camera stream on or off."""
+
+    _attr_icon = "mdi:camera"
+
+    def __init__(self, coordinator) -> None:
+        super().__init__(coordinator, "camera_stream")
+
+    @property
+    def is_on(self) -> bool:
+        return bool((self.coordinator.data or {}).get("camera_stream", True))
+
+    async def async_turn_on(self, **kwargs) -> None:
+        del kwargs
+        await self.coordinator.async_command("camera", on=True)
+
+    async def async_turn_off(self, **kwargs) -> None:
+        del kwargs
+        await self.coordinator.async_command("camera", on=False)
+
+
+class CozmoCameraColor(CozmoEntity, SwitchEntity):
+    """Color when on, black and white when off."""
+
+    _attr_icon = "mdi:palette"
+
+    def __init__(self, coordinator) -> None:
+        super().__init__(coordinator, "camera_color")
+
+    @property
+    def is_on(self) -> bool:
+        return bool((self.coordinator.data or {}).get("camera_color"))
+
+    async def async_turn_on(self, **kwargs) -> None:
+        del kwargs
+        await self.coordinator.async_command("camera_color", enabled=True)
+
+    async def async_turn_off(self, **kwargs) -> None:
+        del kwargs
+        await self.coordinator.async_command("camera_color", enabled=False)
 
 
 class CozmoPersonality(CozmoEntity, SwitchEntity):

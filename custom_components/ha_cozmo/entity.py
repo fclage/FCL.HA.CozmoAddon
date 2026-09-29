@@ -26,7 +26,15 @@ class CozmoEntity(CoordinatorEntity[CozmoCoordinator]):
     def available(self) -> bool:
         # Wake, Auto, and Auto-sleep live in the companion. They must stay
         # usable after the robot itself has powered off.
-        if self._key in {"connected", "companion", "wake", "auto", "auto_sleep"}:
+        if self._key in {
+            "connected",
+            "companion",
+            "wake",
+            "auto",
+            "auto_sleep",
+            "camera_stream",
+            "camera_color",
+        }:
             return self.coordinator.last_update_success
         return self.coordinator.last_update_success and self.coordinator.robot_connected()
 

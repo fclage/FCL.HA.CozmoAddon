@@ -20,6 +20,8 @@
     },
     "switch": {
       "head_light": { "default": "mdi:spotlight-beam" },
+      "camera_stream": { "default": "mdi:camera" },
+      "camera_color": { "default": "mdi:palette" },
       "personality": { "default": "mdi:heart" },
       "auto": { "default": "mdi:robot-excited" },
       "auto_sleep": { "default": "mdi:sleep" }

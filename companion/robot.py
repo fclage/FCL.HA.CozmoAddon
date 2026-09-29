@@ -31,6 +31,25 @@ def clamp_nudge(current: float, delta: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, float(current) + float(delta)))
 
 
+def lift_camera_frame(image, *, target: float = 110.0, max_gain: float = 4.0):
+    """Raise a dim frame toward *target* brightness.
+
+    Grayscale frames from the robot often sit around a mean of 30, which
+    looks dark and muddy. Gain is capped so a nearly black frame is not
+    stretched into pure noise. A frame that is already bright is left alone.
+    """
+    gray = image.convert("L")
+    hist = gray.histogram()
+    total = sum(hist) or 1
+    mean = sum(level * count for level, count in enumerate(hist)) / total
+    if mean < 1 or mean >= target * 0.85:
+        return image
+    gain = min(max_gain, target / mean)
+    lut = [min(255, int(level * gain + 0.5)) for level in range(256)]
+    bands = 3 if image.mode == "RGB" else 1
+    return image.point(lut * bands)
+
+
 def should_cut_power(*, powering_off: bool, sleeping: bool, has_client: bool) -> bool:
     """Power off again must still drop a session that failed to shut down."""
     if powering_off:
@@ -67,6 +86,8 @@ class RobotSession:
         self._backpack_rgb = (0, 0, 0)
         self._backpack_on = False
         self._head_light = False
+        self._camera_on = True
+        self._camera_color = bool(settings.get("camera_color", False))
         self._personality = bool(settings.get("personality", True))
         self._auto = bool(settings.get("auto", False))
         self._auto_sleep = bool(settings.get("auto_sleep", False))
@@ -152,6 +173,8 @@ class RobotSession:
                 "last_anim": self._last_anim,
                 "backpack": {"rgb": list(self._backpack_rgb), "on": self._backpack_on},
                 "head_light": self._head_light,
+                "camera_stream": self._camera_on,
+                "camera_color": self._camera_color,
                 "personality": self._personality,
                 "auto": self._auto,
                 "auto_sleep": self._auto_sleep,
@@ -198,8 +221,9 @@ class RobotSession:
         # camera goes empty instead of looking frozen.
         if not dry and (ts is None or time.time() - ts > STALE_STATE_S):
             return None
+        image = lift_camera_frame(image)
         buf = io.BytesIO()
-        image.convert("RGB").save(buf, format="JPEG", quality=80)
+        image.convert("RGB").save(buf, format="JPEG", quality=92)
         return buf.getvalue()
 
     # --- worker --------------------------------------------------------
@@ -352,6 +376,8 @@ class RobotSession:
             "backpack": self._do_backpack,
             "backpack_off": self._do_backpack_off,
             "head_light": self._do_head_light,
+            "camera": self._do_camera,
+            "camera_color": self._do_camera_color,
             "personality": self._do_personality,
             "auto": self._do_auto,
             "auto_sleep": self._do_auto_sleep,
@@ -377,6 +403,8 @@ class RobotSession:
             "idle",
             "idle_blink",
             "personality",
+            "camera",
+            "camera_color",
             "auto",
             "auto_step",
             "power_off",
@@ -497,7 +525,7 @@ class RobotSession:
                 self._said_hello = True
         log.info("Cozmo connected (%s clips)", len(names))
         self._paint_face()
-        cli.enable_camera(enable=True, color=bool(self.settings.get("camera_color", False)))
+        self._open_camera(cli)
         self._note_link_action()
         self.submit("cubes_connect")
         if self._raise_on_connect:
@@ -507,6 +535,57 @@ class RobotSession:
         # Speak only, and only when he is already off the charger.
         if greet:
             self.submit("speak", phrase_id="im_cozmo")
+
+    def _open_camera(self, cli) -> None:
+        """Stream QVGA and set a manual exposure.
+
+        Auto exposure is computed by the official app, not by this body
+        firmware. Leaving the sensor at its default keeps indoor frames dark.
+        16 ms and gain 1.8 sit inside the usual 1–67 ms and 0.1–4.0 range.
+        """
+        import pycozmo
+
+        with self._lock:
+            enabled = self._camera_on
+            color = self._camera_color
+        try:
+            cli.enable_camera(enable=enabled, color=color and enabled)
+            if enabled:
+                cli.conn.send(
+                    pycozmo.protocol_encoder.SetCameraParams(
+                        gain=1.8,
+                        exposure_ms=16,
+                        auto_exposure_enabled=False,
+                    )
+                )
+        except Exception as exc:  # noqa: BLE001
+            log.warning("camera setup failed: %s", exc)
+            return
+        mode = "color" if color else "grayscale"
+        log.info("camera %s (%s)", "on" if enabled else "off", mode)
+
+    def _apply_camera(self) -> None:
+        with self._lock:
+            cli = self._cli if self._connected else None
+            dry = bool(self.settings.get("dry_run"))
+        if cli is None or dry:
+            return
+        self._open_camera(cli)
+
+    def _do_camera(self, on: bool = True) -> None:
+        with self._lock:
+            self._camera_on = bool(on)
+            if not self._camera_on:
+                self._last_image = None
+                self._last_image_ts = None
+        self._apply_camera()
+
+    def _do_camera_color(self, enabled: bool = False) -> None:
+        with self._lock:
+            self._camera_color = bool(enabled)
+        if not self._camera_on:
+            return
+        self._apply_camera()
 
     def _detach_client(self):
         """Drop the session pointer before stopping threads.

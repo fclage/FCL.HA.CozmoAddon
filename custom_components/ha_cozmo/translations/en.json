@@ -133,6 +133,12 @@
       "head_light": {
         "name": "IR headlight"
       },
+      "camera_stream": {
+        "name": "Camera"
+      },
+      "camera_color": {
+        "name": "Color camera"
+      },
       "personality": {
         "name": "Personality"
       },
