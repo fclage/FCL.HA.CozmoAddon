@@ -159,6 +159,7 @@ An optional on-screen pad (short steps for the lift and head, and a text box tha
 Then you can use cards `custom:cozmo-pad` and `custom:cozmo-say`.
 
 ## What you can control
+<img width="1360" height="878" alt="image" src="https://github.com/user-attachments/assets/a53e0070-12b4-4214-a9c5-241536dba896" />
 
 | Area | Entities and actions |
 | --- | --- |
