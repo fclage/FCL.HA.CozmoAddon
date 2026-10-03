@@ -32,7 +32,7 @@ function clamp(value, lo, hi) {
 
 function readNumber(hass, entity, fallback) {
   const raw = hass?.states?.[entity]?.state;
-  const value = parseFloat(raw);
+  const value = Number.parseFloat(raw);
   return Number.isFinite(value) ? value : fallback;
 }
 
@@ -187,7 +187,9 @@ class CozmoSay extends HTMLElement {
     const input = root.querySelector("input");
     form.addEventListener("submit", (ev) => {
       ev.preventDefault();
-      this._send(input);
+      this._send(input).catch((err) => {
+        console.error(err);
+      });
     });
   }
 

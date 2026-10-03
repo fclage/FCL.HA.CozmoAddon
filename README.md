@@ -4,6 +4,15 @@
 [![HA](https://img.shields.io/badge/Home%20Assistant-2025.1%2B-blue.svg)](https://www.home-assistant.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fclage_FCL.HA.CozmoAddon&metric=alert_status)](https://sonarcloud.io/dashboard?id=fclage_FCL.HA.CozmoAddon)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fclage_FCL.HA.CozmoAddon&metric=coverage)](https://sonarcloud.io/dashboard?id=fclage_FCL.HA.CozmoAddon)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=fclage_FCL.HA.CozmoAddon&metric=bugs)](https://sonarcloud.io/dashboard?id=fclage_FCL.HA.CozmoAddon)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=fclage_FCL.HA.CozmoAddon&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=fclage_FCL.HA.CozmoAddon)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fclage_FCL.HA.CozmoAddon&metric=code_smells)](https://sonarcloud.io/dashboard?id=fclage_FCL.HA.CozmoAddon)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fclage_FCL.HA.CozmoAddon&metric=security_rating)](https://sonarcloud.io/dashboard?id=fclage_FCL.HA.CozmoAddon)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=fclage_FCL.HA.CozmoAddon&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=fclage_FCL.HA.CozmoAddon)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fclage_FCL.HA.CozmoAddon&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=fclage_FCL.HA.CozmoAddon)
+
 Unofficial custom integration for the Anki / Digital Dream Labs **Cozmo** robot. Drive, camera, face, speech, lights, and light cubes from Home Assistant.
 
 ![Cozmo](docs/images/cozmo-product-1.jpg)
@@ -12,7 +21,7 @@ Unofficial custom integration for the Anki / Digital Dream Labs **Cozmo** robot.
 
 **Not affiliated with Anki or Digital Dream Labs.** Cozmo’s Wi-Fi and protocol are handled by a small companion process built on [PyCozmo](https://github.com/zayfod/pycozmo). Use at your own risk.
 
-Current release: **[0.1.1](CHANGELOG.md)**.
+Current release: **[0.1.2](CHANGELOG.md)**.
 
 **Author:** Filipe Lage  
 **Developer:** Grok Code (xAI)

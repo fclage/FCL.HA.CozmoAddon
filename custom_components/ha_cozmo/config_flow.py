@@ -65,9 +65,9 @@ class CozmoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         config = getattr(discovery_info, "config", None) or {}
         if isinstance(discovery_info, dict):
             config = discovery_info.get("config") or discovery_info
-        host = config.get("host") or "172.30.32.1"
+        host = config.get("host") or "172.30.32.1"  # NOSONAR S1313 Supervisor host; discovery can replace it
         port = int(config.get("port") or 8790)
-        url = f"http://{host}:{port}".rstrip("/")
+        url = f"http://{host}:{port}".rstrip("/")  # NOSONAR S5332 companion HTTP on the Supervisor network
         await self.async_set_unique_id(url.lower())
         self._abort_if_unique_id_configured()
         try:

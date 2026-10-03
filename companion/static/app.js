@@ -101,7 +101,9 @@ $("btnIdleOff").addEventListener("click", () => cmd("personality", { enabled: fa
 document.querySelectorAll("[data-drive]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const [left, right] = btn.dataset.drive.split(",").map(Number);
-    cmd("drive", { left, right, duration: 0.4 });
+    cmd("drive", { left, right, duration: 0.4 }).catch((err) =>
+      showErr(err.message || String(err)),
+    );
   });
 });
 
@@ -126,7 +128,11 @@ api("/v1/catalog")
   })
   .catch(() => {});
 
-scanWifi().catch(() => {});
-refreshStatus();
-setInterval(refreshStatus, 3000);
-setInterval(tickCamera, 800);
+function start() {
+  scanWifi().catch(() => {});
+  refreshStatus().catch((err) => showErr(String(err.message || err)));
+  setInterval(refreshStatus, 3000);
+  setInterval(tickCamera, 800);
+}
+
+start();

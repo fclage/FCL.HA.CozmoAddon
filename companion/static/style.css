@@ -16,7 +16,8 @@ body {
 header, main { max-width: 860px; margin: 0 auto; padding: 1rem; }
 header { display: flex; justify-content: space-between; align-items: center; }
 h1 { margin: 0; font-size: 1.4rem; }
-.tag, .hint { color: var(--muted); font-size: 0.85rem; }
+.tag, .hint, label { color: var(--muted); font-size: 0.85rem; }
+label { display: block; margin: 0.35rem 0 0.15rem; }
 section {
   background: var(--card);
   border-radius: 12px;

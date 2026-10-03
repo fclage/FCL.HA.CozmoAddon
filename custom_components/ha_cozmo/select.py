@@ -11,7 +11,7 @@ from .const import FACE_OPTIONS
 from .entity import CozmoEntity
 
 
-async def async_setup_entry(
+async def async_setup_entry(  # NOSONAR S7503 Home Assistant calls platform setup as a coroutine
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,

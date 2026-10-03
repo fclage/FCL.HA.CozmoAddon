@@ -14,7 +14,7 @@ from .const import CONF_TOKEN
 TO_REDACT = {CONF_PASSWORD, CONF_TOKEN, "password", "token", "psk"}
 
 
-async def async_get_config_entry_diagnostics(
+async def async_get_config_entry_diagnostics(  # NOSONAR S7503 Home Assistant calls this diagnostics hook as a coroutine
     hass: HomeAssistant, entry: ConfigEntry
 ) -> dict[str, Any]:
     coordinator = entry.runtime_data
