@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. The version matches `cust
 
 Each change that lands on `main` gets an entry and a version bump. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 0.1.3
+
+- A push to `main` publishes a GitHub release for each manifest version that does not already have a tag. The notes come from this changelog, and the tag points at the commit that introduced the version.
+
 ## 0.1.2
 
 - Companion logs drop carriage returns and newlines from the request path and the client address. Responses send `X-Content-Type-Options: nosniff`.

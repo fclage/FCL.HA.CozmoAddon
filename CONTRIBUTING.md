@@ -10,7 +10,7 @@ Contributions are welcome. Issues, fixes, and new behavior from other developers
 2. Branch from `main` and do the work there.
 3. Open a pull request. Describe what changed and how you checked it.
 4. A review happens on that pull request. Merge only after the review.
-5. The maintainer merges. The merge is what updates `main`.
+5. The maintainer merges. The merge is what updates `main`. The Release workflow then publishes a GitHub release for every manifest version on `main` that does not already have a `v` tag. The notes are that version's section in `CHANGELOG.md`, and the tag points at the commit that introduced the version.
 
 A pull request that changes the project must also:
 

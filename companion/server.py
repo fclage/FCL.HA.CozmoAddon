@@ -32,7 +32,7 @@ def _json_bytes(payload: Any, status: int = 200) -> tuple[int, bytes, str]:
 
 
 class CompanionHandler(BaseHTTPRequestHandler):
-    server_version = "ha-cozmo-companion/0.1.2"
+    server_version = "ha-cozmo-companion/0.1.3"
     robot: RobotSession
     token: str = ""
     allow: str = "private"
