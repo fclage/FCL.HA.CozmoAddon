@@ -7,7 +7,7 @@ from homeassistant.const import Platform
 DOMAIN = "ha_cozmo"
 DEFAULT_NAME = "Cozmo"
 DEFAULT_URL = "http://127.0.0.1:8790"
-DEFAULT_ADDON_URL = "http://172.30.32.1:8790"
+DEFAULT_ADDON_URL = "http://172.30.32.1:8790"  # NOSONAR Supervisor host; HTTP on that network has no TLS cert
 DEFAULT_SSID = "Cozmo_"
 
 CONF_SSID = "ssid"

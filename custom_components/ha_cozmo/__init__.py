@@ -43,7 +43,7 @@ _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
-async def async_setup(_hass: HomeAssistant, _config: ConfigType) -> bool:
+async def async_setup(_hass: HomeAssistant, _config: ConfigType) -> bool:  # NOSONAR S7503 Home Assistant calls this as a coroutine
     return True
 
 

@@ -22,18 +22,23 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 log = logging.getLogger("ha_cozmo.http")
 
 
+def _log_text(value: object) -> str:
+    """Drop CR and LF so a request line cannot forge extra log records."""
+    return str(value).replace("\r", "").replace("\n", "")
+
+
 def _json_bytes(payload: Any, status: int = 200) -> tuple[int, bytes, str]:
     return status, json.dumps(payload).encode("utf-8"), "application/json"
 
 
 class CompanionHandler(BaseHTTPRequestHandler):
-    server_version = "ha-cozmo-companion/0.1.1"
+    server_version = "ha-cozmo-companion/0.1.2"
     robot: RobotSession
     token: str = ""
     allow: str = "private"
 
     def log_message(self, fmt: str, *args: Any) -> None:
-        log.info("%s - %s", self.address_string(), fmt % args)
+        log.info("%s - %s", _log_text(self.address_string()), _log_text(fmt % args))
 
     def _unauthorized(self) -> None:
         self._send(*_json_bytes({"ok": False, "error": "unauthorized"}, 401))
@@ -42,7 +47,12 @@ class CompanionHandler(BaseHTTPRequestHandler):
         ip = self.client_address[0]
         if client_allowed(ip, self.allow):
             return True
-        log.warning("rejected %s %s from %s", self.command, self.path, ip)
+        log.warning(
+            "rejected %s %s from %s",
+            _log_text(self.command),
+            _log_text(self.path),
+            _log_text(ip),
+        )
         self._send(*_json_bytes({"ok": False, "error": "forbidden"}, 403))
         return False
 
@@ -62,9 +72,10 @@ class CompanionHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(body)
+            self.wfile.write(body)  # NOSONAR S5131 JSON, JPEG, or a file from companion/static
 
     def _read_json(self) -> dict:
         length = int(self.headers.get("Content-Length") or 0)
@@ -220,7 +231,7 @@ class CompanionHandler(BaseHTTPRequestHandler):
                     suffix = ".ogg"
                 fd, tmp = tempfile.mkstemp(prefix="cozmo-in-", suffix=suffix)
                 os.close(fd)
-                Path(tmp).write_bytes(data)
+                Path(tmp).write_bytes(data)  # NOSONAR S2083 path is from tempfile.mkstemp; suffix is .wav, .mp3, or .ogg
                 self.robot.submit("audio", path=tmp)
                 self._send(*_json_bytes({"ok": True, "cmd": "audio", "bytes": len(data)}))
                 return

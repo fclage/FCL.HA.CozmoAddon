@@ -65,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
         "ssid": os.environ.get("COZMO_SSID", ""),
         "password": os.environ.get("COZMO_PASSWORD", ""),
         "wifi_iface": os.environ.get("COZMO_WIFI_IFACE", ""),
-        "robot_host": os.environ.get("COZMO_HOST", "172.31.1.1"),
+        "robot_host": os.environ.get("COZMO_HOST", "172.31.1.1"),  # NOSONAR S1313 Cozmo SDK address; COZMO_HOST overrides it
         "robot_port": int(os.environ.get("COZMO_PORT", "5551")),
         "camera_color": _truthy(os.environ.get("CAMERA_COLOR", "0")),
         "dry_run": _truthy(os.environ.get("COZMO_DRY_RUN", "0")),

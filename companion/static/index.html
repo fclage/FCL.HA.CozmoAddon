@@ -22,15 +22,19 @@
       <section>
         <h2>Companion token</h2>
         <p class="hint">Leave blank if <code>COMPANION_TOKEN</code> is unset. Stored in this browser only.</p>
+        <label for="token">Token</label>
         <input id="token" type="password" placeholder="optional bearer token" />
       </section>
       <section>
         <h2>Wi‑Fi (Cozmo AP)</h2>
+        <label for="ssidSelect">Seen networks</label>
         <div class="row">
           <select id="ssidSelect"><option value="">Scan…</option></select>
           <button type="button" id="btnScan">Rescan</button>
         </div>
+        <label for="ssid">Network name</label>
         <input id="ssid" placeholder="Cozmo_XXXXXX" />
+        <label for="psk">Lift password</label>
         <input id="psk" type="password" placeholder="lift PSK" />
         <button type="button" id="btnJoin">Join AP</button>
         <p class="hint" id="wifiHint"></p>
@@ -51,6 +55,7 @@
       </section>
       <section>
         <h2>Speak / face</h2>
+        <label for="say">Line to speak</label>
         <div class="row">
           <input id="say" placeholder="Hello, I am Cozmo" />
           <button type="button" id="btnSay">Speak</button>

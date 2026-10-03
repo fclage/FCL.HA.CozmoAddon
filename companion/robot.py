@@ -243,7 +243,7 @@ class RobotSession:
 
     def _robot_reachable(self) -> bool:
         """ICMP the robot on the Cozmo interface. A miss means the AP join dropped."""
-        host = self.settings.get("robot_host") or "172.31.1.1"
+        host = self.settings.get("robot_host") or "172.31.1.1"  # NOSONAR S1313 Cozmo SDK address; COZMO_HOST overrides it
         iface = (self.settings.get("wifi_iface") or "").strip()
         cmd = ["ping", "-c", "1", "-W", "1"]
         if iface:
@@ -446,7 +446,7 @@ class RobotSession:
         self._do_disconnect()
         import pycozmo
 
-        host = self.settings.get("robot_host") or "172.31.1.1"
+        host = self.settings.get("robot_host") or "172.31.1.1"  # NOSONAR S1313 Cozmo SDK address; COZMO_HOST overrides it
         port = int(self.settings.get("robot_port") or 5551)
         log.info("connecting to Cozmo at %s:%s", host, port)
         cli = pycozmo.Client(

@@ -10,7 +10,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .entity import CozmoEntity
 
 
-async def async_setup_entry(
+async def async_setup_entry(  # NOSONAR S7503 Home Assistant calls platform setup as a coroutine
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
@@ -89,18 +89,21 @@ class CozmoCubeLed(CozmoEntity, LightEntity):
     def is_on(self) -> bool:
         row = self._row() or {}
         leds = row.get("leds") or []
-        if self._index >= len(leds):
-            return False
-        return bool(leds[self._index])
+        index = self._index
+        if 0 <= index < len(leds):
+            return bool(leds[index])
+        return False
 
     @property
     def rgb_color(self) -> tuple[int, int, int] | None:
         row = self._row() or {}
         leds = row.get("leds") or []
-        color = leds[self._index] if self._index < len(leds) else None
-        if not color:
-            return None
-        return (int(color[0]), int(color[1]), int(color[2]))
+        index = self._index
+        if 0 <= index < len(leds):
+            color = leds[index]
+            if isinstance(color, (list, tuple)) and len(color) >= 3:
+                return (int(color[0]), int(color[1]), int(color[2]))
+        return None
 
     async def async_turn_on(self, **kwargs) -> None:
         rgb = kwargs.get("rgb_color") or (255, 180, 40)
