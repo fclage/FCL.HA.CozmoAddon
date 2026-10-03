@@ -16,11 +16,16 @@ jobs:
         with:
           python-version: "3.13"
       - name: Install test dependencies
-        run: pip install pytest -r companion/requirements.txt
+        run: pip install -r tests/requirements.txt -r companion/requirements.txt
       - name: Run tests
-        run: pytest tests -q
+        run: pytest tests -q --cov=companion --cov-report=xml:coverage.xml
         env:
           PYTHONPATH: .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+          retention-days: 7
 
   hacs:
     name: HACS
@@ -39,6 +44,7 @@ jobs:
 
   sonarqube:
     name: SonarCloud
+    needs: tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # Same-repo pull requests carry the GitHub event the scanner needs for
@@ -53,6 +59,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: .
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
         env:

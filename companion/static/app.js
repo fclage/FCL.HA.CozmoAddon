@@ -128,7 +128,11 @@ api("/v1/catalog")
   })
   .catch(() => {});
 
-scanWifi().catch(() => {});
-refreshStatus().catch((err) => showErr(String(err.message || err)));
-setInterval(refreshStatus, 3000);
-setInterval(tickCamera, 800);
+function start() {
+  scanWifi().catch(() => {});
+  refreshStatus().catch((err) => showErr(String(err.message || err)));
+  setInterval(refreshStatus, 3000);
+  setInterval(tickCamera, 800);
+}
+
+start();

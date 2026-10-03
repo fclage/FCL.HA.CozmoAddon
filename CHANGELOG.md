@@ -9,6 +9,7 @@ Each change that lands on `main` gets an entry and a version bump. See [CONTRIBU
 - Companion logs drop carriage returns and newlines from the request path and the client address. Responses send `X-Content-Type-Options: nosniff`.
 - The debug page names its token, network, password, and speech fields. A failed drive or status refresh shows on the error line, and the say card catches a failed speak call.
 - A cube LED color is used only when that color has three channels.
+- Unit tests publish a coverage report for the companion so SonarCloud can score new Python lines.
 
 ## 0.1.1
 

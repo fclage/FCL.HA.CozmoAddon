@@ -22,7 +22,7 @@ def test_access_log_strips_line_breaks(caplog) -> None:
     message = caplog.records[0].getMessage()
     assert "\n" not in message
     assert "\r" not in message
-    assert "127.0.0.1FORGED - GET /uiFORGED" == message
+    assert message == "127.0.0.1FORGED - GET /uiFORGED"
 
 
 def test_rejected_request_cannot_forge_a_log_line(caplog) -> None:
