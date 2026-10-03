@@ -18,13 +18,15 @@ jobs:
       - name: Install test dependencies
         run: pip install -r tests/requirements.txt -r companion/requirements.txt
       - name: Run tests
-        run: pytest tests -q --cov=companion --cov-report=xml:coverage.xml
+        run: pytest tests -q --cov=companion --cov-report=xml:coverage.xml --junitxml=xunit-reports/xunit-result.xml
         env:
           PYTHONPATH: .
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
-          path: coverage.xml
+          path: |
+            coverage.xml
+            xunit-reports/xunit-result.xml
           retention-days: 7
 
   hacs:
@@ -63,6 +65,8 @@ jobs:
         with:
           name: coverage
           path: .
+      - name: Require coverage and test reports
+        run: test -f coverage.xml && test -f xunit-reports/xunit-result.xml
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
         env:
