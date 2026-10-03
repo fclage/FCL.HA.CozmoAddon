@@ -12,7 +12,7 @@ Unofficial custom integration for the Anki / Digital Dream Labs **Cozmo** robot.
 
 **Not affiliated with Anki or Digital Dream Labs.** Cozmo’s Wi-Fi and protocol are handled by a small companion process built on [PyCozmo](https://github.com/zayfod/pycozmo). Use at your own risk.
 
-Current release: **[0.1.0](CHANGELOG.md)**.
+Current release: **[0.1.1](CHANGELOG.md)**.
 
 **Author:** Filipe Lage  
 **Developer:** Grok Code (xAI)

@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. The version matches `cust
 
 Each change that lands on `main` gets an entry and a version bump. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 0.1.1
+
+- SonarCloud analyzes every validation run, including pushes, pull requests, and the weekly schedule. The project is `fclage_FCL.HA.CozmoAddon`.
+
 ## 0.1.0
 
 First release.
