@@ -10,5 +10,5 @@
   "loggers": ["ha_cozmo", "companion"],
   "quality_scale": "custom",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
