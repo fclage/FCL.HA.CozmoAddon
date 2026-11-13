@@ -14,6 +14,10 @@ Environment overrides (all optional):
   COZMO_PIPER_DIR    default ~/.local/share/piper
   COZMO_TTS_PITCH    pitch/tempo factor for Piper output, 1.0 = natural;
                      default 1.10 (a little higher, more Cozmo-like)
+  COZMO_PIPER_AUTO_DOWNLOAD
+                     "1" (default) downloads a named voice from the official
+                     rhasspy/piper-voices repository into COZMO_PIPER_DIR the
+                     first time it is needed; "0" disables that
 """
 
 from __future__ import annotations
@@ -66,6 +70,22 @@ def _pitch_factor() -> float:
     return min(max(f, 0.8), 1.4)
 
 
+def _maybe_download_voice(path: Path) -> None:
+    """Fetch a named voice (e.g. en_US-amy-medium) into its directory once."""
+    if os.environ.get("COZMO_PIPER_AUTO_DOWNLOAD", "1").strip().lower() in {"0", "false", "no", "off"}:
+        return
+    voice = os.environ.get("COZMO_PIPER_VOICE", "").strip() or DEFAULT_PIPER_VOICE
+    if voice.endswith(".onnx") or "/" in voice:
+        return  # explicit model path: never download
+    from piper.download_voices import download_voice
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    log.info("Downloading Piper voice %s to %s", voice, path.parent)
+    t0 = time.perf_counter()
+    download_voice(voice, path.parent)
+    log.info("Piper voice %s downloaded in %.1f s", voice, time.perf_counter() - t0)
+
+
 def _load_piper():
     """Load (once) and return the Piper voice. Raises on failure."""
     global _voice, _voice_path, _voice_failed
@@ -75,6 +95,8 @@ def _load_piper():
             return _voice
         from piper import PiperVoice  # imported lazily; optional dependency
 
+        if not path.is_file():
+            _maybe_download_voice(path)
         if not path.is_file():
             raise FileNotFoundError(f"Piper voice model not found: {path}")
         t0 = time.perf_counter()
