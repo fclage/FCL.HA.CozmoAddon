@@ -4,6 +4,13 @@ All notable changes to this project are recorded here. The version matches `cust
 
 Each change that lands on `main` gets an entry and a version bump. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 0.2.0
+
+- Speech works on hosts that honor Cozmo's DHCP MTU. Cozmo's access point advertises MTU 576, while each audio frame is about 807 bytes, so Linux split every audio frame into IP fragments. The robot drops fragmented datagrams, never acknowledged the frames, and the send window filled until pings stopped and the link went stale. The companion now sets `802-11-wireless.mtu 1500` on the `cozmo-ap` profile every time it joins. See [docs/wifi.md](docs/wifi.md#mtu-and-speech).
+- Speech uses Piper, a local neural voice (default `en_US-amy-medium`, slightly raised pitch). The voice is downloaded on first use and kept loaded, so synthesis takes tens of milliseconds. espeak-ng remains the automatic fallback. New settings: `COZMO_TTS_ENGINE`, `COZMO_PIPER_VOICE`, `COZMO_PIPER_DIR`, `COZMO_TTS_PITCH`, `COZMO_PIPER_AUTO_DOWNLOAD`.
+- The u-law encoder clamps full-scale negative samples to 255 instead of wrapping them to 0.
+- espeak-ng amplitude lowered from 140 to 100 to stop clipping.
+
 ## 0.1.2
 
 - Companion logs drop carriage returns and newlines from the request path and the client address. Responses send `X-Content-Type-Options: nosniff`.
