@@ -1,7 +1,7 @@
 """WAV → Cozmo OutputAudio with a Python 3.13+ safe u-law encoder.
 
 pycozmo's u_law_encoding can return values outside 0..255; assigning those
-to a bytearray raises ValueError on modern Python. Mask to 8 bits.
+to a bytearray raises ValueError on modern Python. Clamp to 8 bits.
 """
 
 from __future__ import annotations
@@ -31,7 +31,9 @@ def u_law_encoding(sample: int) -> int:
         mask >>= 1
         position -= 1
     lsb = (sample >> (position - 4)) & 0x0F
-    return (-(~(sign | ((position - 7) << 4) | lsb))) & 0xFF
+    # -(~x) == x + 1, which reaches 256 at full-scale negative samples; clamp
+    # to the 8-bit range instead of wrapping to 0 (a click/glitch).
+    return min(-(~(sign | ((position - 7) << 4) | lsb)), 0xFF)
 
 
 def bytes_to_cozmo(byte_string: bytes, rate_correction: int, channels: int) -> bytearray:

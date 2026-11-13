@@ -18,7 +18,7 @@ log = logging.getLogger("ha_cozmo.tts")
 
 DEFAULT_SPEED = 155
 DEFAULT_PITCH = 92
-DEFAULT_AMPLITUDE = 140
+DEFAULT_AMPLITUDE = 100
 
 
 def find_espeak() -> Optional[str]:
