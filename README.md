@@ -182,7 +182,7 @@ Then you can use cards `custom:cozmo-pad` and `custom:cozmo-say`.
 | Camera | **Camera** turns the stream on or off. **Color camera** selects color or black and white. The dashboard card is a still; `/v1/camera/stream` on the companion is the live view |
 | Move | Wheel speeds, head angle, lift height |
 | Face and reactions | Procedural expressions, named reactions, animation clips |
-| Speech | Phrase ids or any text (espeak on the companion host) |
+| Speech | Phrase ids or any text (Piper on the companion host, espeak-ng fallback). See [settings](docs/settings.md#speech) |
 | Cubes | Seen cubes, one linked cube, battery level, tap, four LEDs each |
 
 ### Power on after shutdown
