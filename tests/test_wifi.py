@@ -63,3 +63,27 @@ def test_reject_default_route_iface() -> None:
     assert "default route" in (reject_default_route_iface("wlan0", "wlan0") or "")
     assert reject_default_route_iface("wlan1", "wlan0") is None
     assert reject_default_route_iface("wlan1", None) is None
+
+
+def test_profile_pins_mtu_1500(monkeypatch) -> None:
+    from companion import wifi
+
+    calls = []
+
+    class Done:
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    def fake_nmcli(*args, timeout=20):
+        calls.append(args)
+        return Done()
+
+    monkeypatch.setattr(wifi, "_nmcli", fake_nmcli)
+    monkeypatch.setattr(wifi, "_profile_exists", lambda: True)
+    ok, _ = wifi._ensure_profile("wlan9", "Cozmo_ABC123", "")
+    assert ok
+    modify = [c for c in calls if c[:2] == ("connection", "modify")]
+    assert modify, calls
+    args = list(modify[0])
+    assert args[args.index("802-11-wireless.mtu") + 1] == "1500"
