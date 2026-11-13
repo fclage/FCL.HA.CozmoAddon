@@ -85,6 +85,10 @@ def main(argv: list[str] | None = None) -> int:
     robot = RobotSession(settings)
     robot.start()
 
+    from .tts import preload as preload_tts
+
+    preload_tts()
+
     if settings["ssid"] and not settings["dry_run"]:
         robot.submit("wifi_join")
     robot.submit("connect")

@@ -50,7 +50,9 @@ The connect command uses a single radio slot. Linking a second cube disconnects 
 
 ## Speech
 
-There is no microphone. Phrases and typed text are spoken on the companion host with espeak and played out of the robot. Animations need the PyCozmo asset download (`pycozmo_resources.py download`). Faces work without it.
+There is no microphone. Phrases and typed text are spoken on the companion host with Piper (espeak-ng as fallback) and played out of the robot. Animations need the PyCozmo asset download (`pycozmo_resources.py download`). Faces work without it. Voice settings are in [settings](settings.md#speech).
+
+If every speak is silent and the robot shows `COZMO 01` about 5 to 15 seconds later, while `ping 172.31.1.1` keeps answering, check the interface MTU. At 576 the audio frames are fragmented and dropped. See [MTU and speech](wifi.md#mtu-and-speech).
 
 ## What to include in a bug report
 
