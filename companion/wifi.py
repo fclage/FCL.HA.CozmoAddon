@@ -329,6 +329,10 @@ def _ensure_profile(iface: str, ssid: str, password: str) -> tuple[bool, str]:
         "bg",
         "802-11-wireless.powersave",
         "2",
+        # Cozmo's DHCP advertises MTU 576, which splits ~807-byte audio
+        # frames into IP fragments that the robot silently drops. Pin 1500.
+        "802-11-wireless.mtu",
+        "1500",
         "ipv4.method",
         "auto",
         "ipv4.never-default",
