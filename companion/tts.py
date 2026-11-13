@@ -47,7 +47,6 @@ DEFAULT_PIPER_PITCH = 1.10
 _voice_lock = threading.Lock()
 _voice = None
 _voice_path: Optional[Path] = None
-_voice_failed: Optional[str] = None
 
 
 def find_espeak() -> Optional[str]:
@@ -88,7 +87,7 @@ def _maybe_download_voice(path: Path) -> None:
 
 def _load_piper():
     """Load (once) and return the Piper voice. Raises on failure."""
-    global _voice, _voice_path, _voice_failed
+    global _voice, _voice_path
     path = _piper_model_path()
     with _voice_lock:
         if _voice is not None and _voice_path == path:
@@ -102,7 +101,6 @@ def _load_piper():
         t0 = time.perf_counter()
         _voice = PiperVoice.load(str(path))
         _voice_path = path
-        _voice_failed = None
         log.info("Piper voice %s loaded in %.0f ms", path.name, (time.perf_counter() - t0) * 1000)
         return _voice
 
