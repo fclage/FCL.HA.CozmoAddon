@@ -1,0 +1,120 @@
+name: Release
+
+# Validate on main is the gate. This workflow then tags that same commit.
+# workflow_run otherwise checks out the default-branch tip, which may have
+# moved past the commit that passed.
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Validate"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Publish
+    runs-on: ubuntu-latest
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'schedule'))
+    steps:
+      - name: Checkout the validated commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Publish the release when the tag is missing
+        env:
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PROMPT_DISABLED: "1"
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import re
+          import subprocess
+          import sys
+
+          sha = os.environ["RELEASE_SHA"]
+          if re.fullmatch(r"[0-9a-fA-F]{40}", sha) is None:
+              sys.exit("Refusing to release an unexpected commit SHA.")
+
+          manifest = json.loads(
+              pathlib.Path("custom_components/ha_cozmo/manifest.json").read_text(encoding="utf-8")
+          )
+          version = manifest["version"]
+          if re.fullmatch(r"\d+\.\d+\.\d+", version) is None:
+              sys.exit(f"manifest.json version must look like X.Y.Z, got {version!r}.")
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          tag = f"v{version}"
+
+          def tag_exists() -> bool:
+              result = subprocess.run(
+                  ["gh", "api", f"repos/{repo}/git/ref/tags/{tag}", "--jq", ".ref"],
+                  check=False,
+                  capture_output=True,
+                  text=True,
+              )
+              return result.returncode == 0
+
+          if tag_exists():
+              print(f"Tag {tag} already exists; nothing to do.")
+              sys.exit(0)
+
+          text = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8").replace("\r\n", "\n")
+          match = re.search(
+              rf"(?m)^## {re.escape(version)}\n(.*?)(?=^## |\Z)",
+              text,
+              re.S,
+          )
+          if match is None:
+              sys.exit(f"CHANGELOG.md has no section for {version}.")
+          notes = match.group(1).strip()
+          if not notes:
+              sys.exit(f"CHANGELOG.md section for {version} is empty.")
+
+          notes_path = pathlib.Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "release-notes.md"
+          notes_path.parent.mkdir(parents=True, exist_ok=True)
+          notes_path.write_text(notes + "\n", encoding="utf-8")
+
+          create = subprocess.run(
+              [
+                  "gh",
+                  "release",
+                  "create",
+                  tag,
+                  "--repo",
+                  repo,
+                  "--target",
+                  sha,
+                  "--title",
+                  version,
+                  "--notes-file",
+                  str(notes_path),
+                  "--latest",
+              ],
+              check=False,
+          )
+          if create.returncode == 0:
+              print(f"Published {tag} at {sha}.")
+              sys.exit(0)
+          if tag_exists():
+              print(f"Tag {tag} already exists; nothing to do.")
+              sys.exit(0)
+          sys.exit(f"Could not publish {tag}.")
+          PY
