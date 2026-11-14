@@ -12,6 +12,8 @@ Contributions are welcome. Issues, fixes, and new behavior from other developers
 4. A review happens on that pull request. Merge only after the review.
 5. The maintainer merges. The merge is what updates `main`.
 
+When that merge reaches `main` and Validate succeeds, [release.yml](.github/workflows/release.yml) reads the manifest version. If `vX.Y.Z` is not already a tag, it tags the validated commit and publishes a GitHub Release titled `X.Y.Z`, with notes taken from that version's section of [CHANGELOG.md](CHANGELOG.md). The same workflow can be run by hand on `main`. An existing tag is left unchanged. Only the manifest version is published, so an older version that was never tagged stays unpublished.
+
 A pull request that changes the project must also:
 
 - Add an entry under a new version heading in [CHANGELOG.md](CHANGELOG.md).

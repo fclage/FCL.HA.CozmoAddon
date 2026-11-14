@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. The version matches `cust
 
 Each change that lands on `main` gets an entry and a version bump. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 0.2.1
+
+- Releases are published automatically when a version bump lands on main.
+
 ## 0.2.0
 
 - Speech works on hosts that honor Cozmo's DHCP MTU. Cozmo's access point advertises MTU 576, while each audio frame is about 807 bytes, so Linux split every audio frame into IP fragments. The robot drops fragmented datagrams, never acknowledged the frames, and the send window filled until pings stopped and the link went stale. The companion now sets `802-11-wireless.mtu 1500` on the `cozmo-ap` profile every time it joins. See [docs/wifi.md](docs/wifi.md#mtu-and-speech).
